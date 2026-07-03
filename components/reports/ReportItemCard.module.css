@@ -1,0 +1,82 @@
+.item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.orderControls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.orderButton {
+  color: var(--color-text-body);
+  display: flex;
+  padding: 2px;
+}
+
+.orderButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.orderButton:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.titleInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  padding: 4px 0;
+}
+
+.titleInput:focus {
+  outline: none;
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.statusSelect {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-page);
+  padding: 5px 8px;
+  font-size: 0.75rem;
+  color: var(--color-text-heading);
+}
+
+.deleteButton {
+  color: var(--color-text-body);
+  display: flex;
+}
+
+.deleteButton:hover {
+  color: var(--color-danger);
+}
+
+.sectionLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-body);
+}

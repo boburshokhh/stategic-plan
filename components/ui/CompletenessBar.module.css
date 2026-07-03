@@ -1,0 +1,42 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.3s ease;
+}
+
+.fill.danger {
+  background: var(--color-danger);
+}
+
+.fill.warning {
+  background: var(--color-warning);
+}
+
+.fill.success {
+  background: var(--color-success);
+}
+
+.label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--color-text-body);
+}
+
+.percent {
+  font-weight: 600;
+  color: var(--color-text-heading);
+}

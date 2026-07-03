@@ -1,0 +1,42 @@
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+}
+
+.metaValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-heading);
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.savedHint {
+  font-size: 0.8125rem;
+  color: var(--color-success);
+}

@@ -1,0 +1,52 @@
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 10px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-secondary) 12%, #fff);
+  color: var(--color-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.chipRemove {
+  display: flex;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.chipRemove:hover {
+  opacity: 1;
+  color: var(--color-danger);
+}
+
+.addSelect {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-body);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+}
+
+.externalForm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.externalInput {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  width: 140px;
+}

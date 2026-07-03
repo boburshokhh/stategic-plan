@@ -1,0 +1,53 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-page);
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-body);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hintBox {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+  background: var(--color-bg-page);
+  border-radius: var(--radius-control);
+  padding: 10px 12px;
+  line-height: 1.6;
+}

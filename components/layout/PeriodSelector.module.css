@@ -1,0 +1,20 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.select {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-page);
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-heading);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}

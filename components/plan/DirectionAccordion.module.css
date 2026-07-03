@@ -1,0 +1,72 @@
+.direction {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: var(--color-bg-surface);
+}
+
+.code {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-primary) 12%, #fff);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+.headerText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+.theme {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+}
+
+.body {
+  padding: 8px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.taskTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  padding: 8px 12px 4px;
+}
+
+.emptyTask {
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  color: var(--color-text-body);
+}

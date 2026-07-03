@@ -1,0 +1,80 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.success {
+  background: color-mix(in srgb, var(--color-success) 16%, #fff);
+  color: color-mix(in srgb, var(--color-success) 55%, #1c5c00);
+}
+
+.warning {
+  background: color-mix(in srgb, var(--color-warning) 18%, #fff);
+  color: color-mix(in srgb, var(--color-warning) 60%, #6b3e00);
+}
+
+.danger {
+  background: color-mix(in srgb, var(--color-danger) 16%, #fff);
+  color: var(--color-danger);
+}
+
+.info {
+  background: color-mix(in srgb, var(--color-info) 18%, #fff);
+  color: color-mix(in srgb, var(--color-info) 55%, #005a70);
+}
+
+.secondary {
+  background: color-mix(in srgb, var(--color-secondary) 14%, #fff);
+  color: var(--color-secondary);
+}
+
+.primary {
+  background: color-mix(in srgb, var(--color-primary) 14%, #fff);
+  color: var(--color-primary);
+}
+
+/* Pill-счётчик: сплошная заливка, для чисел/уведомлений */
+.pill {
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 8px;
+}
+
+.pill.success {
+  background: var(--color-success);
+  color: #1c3300;
+}
+
+.pill.warning {
+  background: var(--color-warning);
+  color: #402700;
+}
+
+.pill.danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.pill.info {
+  background: var(--color-info);
+  color: #00303b;
+}
+
+.pill.secondary {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.pill.primary {
+  background: var(--color-primary);
+  color: #fff;
+}

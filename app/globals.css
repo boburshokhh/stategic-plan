@@ -1,39 +1,75 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Brand / Primary */
+  --color-primary: #666cff;
+  --color-primary-rgb: 102, 108, 255;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+  /* Semantic */
+  --color-secondary: #6d788d;
+  --color-success: #72e128;
+  --color-danger: #ff4d49;
+  --color-warning: #fdb528;
+  --color-info: #26c6f9;
 
-html {
-  height: 100%;
-}
+  /* Backgrounds */
+  --color-bg-page: #f7f7f9;
+  --color-bg-surface: #ffffff;
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+  /* Text */
+  --color-text-body: #676a7b;
+  --color-text-heading: color-mix(in srgb, #262b43 90%, #fff);
+  --color-text-muted: color-mix(in srgb, #676a7b 70%, #fff);
 
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Borders */
+  --color-border: color-mix(in srgb, #262b43 12%, #fff);
+
+  /* Radii */
+  --radius-card: 0.625rem;
+  --radius-control: 0.5rem;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 0.25rem 0.875rem 0 rgba(38, 43, 67, 0.16);
+
+  /* Typography */
+  --font-family-base: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 0.9375rem;
+  --line-height-base: 1.5;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html,
+body {
   padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-body);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text-heading);
+  font-weight: 600;
+  margin: 0;
+}
+
+p {
   margin: 0;
 }
 
@@ -42,8 +78,75 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background: var(--color-border);
+  border-radius: var(--radius-control);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.page-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-warning) 10%, #fff);
+  color: color-mix(in srgb, var(--color-warning) 60%, #6b3e00);
+  font-size: 0.8125rem;
 }

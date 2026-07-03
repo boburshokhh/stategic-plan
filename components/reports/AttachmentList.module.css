@@ -1,0 +1,61 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  background: var(--color-bg-page);
+  font-size: 0.8125rem;
+}
+
+.icon {
+  color: var(--color-secondary);
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.name:hover {
+  color: var(--color-primary);
+}
+
+.size {
+  color: var(--color-text-body);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.removeButton {
+  color: var(--color-text-body);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.removeButton:hover {
+  color: var(--color-danger);
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.75rem;
+}

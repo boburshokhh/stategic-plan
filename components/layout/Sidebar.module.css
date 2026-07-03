@@ -1,0 +1,122 @@
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--color-bg-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.brandTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.brandSubtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+}
+
+.nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-control);
+  color: var(--color-text-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navItem:hover {
+  background: color-mix(in srgb, var(--color-primary) 6%, #fff);
+  color: var(--color-text-heading);
+}
+
+.navItemActive {
+  background: color-mix(in srgb, var(--color-primary) 12%, #fff);
+  color: var(--color-primary);
+}
+
+.navLabel {
+  flex: 1;
+}
+
+.userCard {
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-primary) 16%, #fff);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userDept {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutButton {
+  flex-shrink: 0;
+  color: var(--color-text-body);
+  padding: 6px;
+  border-radius: var(--radius-control);
+  display: flex;
+}
+
+.logoutButton:hover {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 8%, #fff);
+}
