@@ -1,0 +1,337 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum PlanStatus {
+  draft
+  active
+  archived
+}
+
+enum SubtaskDepartmentRole {
+  owner
+  participant
+}
+
+enum ReportStatus {
+  not_started
+  in_progress
+  completed
+}
+
+enum UserRole {
+  dept_user
+  direction_head
+  admin
+}
+
+enum SummaryStatus {
+  draft
+  approved
+}
+
+// ---------------------------------------------------------------------------
+// 3.1 Справочники и план
+// ---------------------------------------------------------------------------
+
+model StrategicPlan {
+  id        String     @id @default(uuid())
+  title     String
+  yearFrom  Int        @map("year_from")
+  yearTo    Int        @map("year_to")
+  status    PlanStatus @default(draft)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  yearThemes DirectionYearTheme[]
+  directions Direction[]
+
+  @@map("strategic_plans")
+}
+
+/// Годовые темы/слоганы плана (строка 3 листа: "ГОД СТРАТЕГИЧЕСКОГО АНАЛИЗА...")
+/// закреплены за направлением, так как в файле формулировка может отличаться по листам.
+model DirectionYearTheme {
+  id          String        @id @default(uuid())
+  plan        StrategicPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId      String        @map("plan_id")
+  direction   Direction     @relation(fields: [directionId], references: [id], onDelete: Cascade)
+  directionId String        @map("direction_id")
+  year        Int
+  themeTitle  String        @map("theme_title")
+
+  @@unique([directionId, year])
+  @@map("plan_year_themes")
+}
+
+model Direction {
+  id        String   @id @default(uuid())
+  plan      StrategicPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId    String   @map("plan_id")
+  code      String
+  name      String
+  sortOrder Int      @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tasks      Task[]
+  yearThemes DirectionYearTheme[]
+  summaries  DirectionSummary[]
+
+  @@unique([planId, code])
+  @@map("directions")
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  direction   Direction @relation(fields: [directionId], references: [id], onDelete: Cascade)
+  directionId String    @map("direction_id")
+  number      Int?
+  title       String
+  sortOrder   Int       @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  subtasks Subtask[]
+
+  @@index([directionId, sortOrder])
+  @@map("tasks")
+}
+
+model Subtask {
+  id             String   @id @default(uuid())
+  task           Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId         String   @map("task_id")
+  year           Int
+  title          String
+  sortOrder      Int      @map("sort_order")
+  expectedResult String?  @map("expected_result")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  departments SubtaskDepartment[]
+  reports     QuarterlyReport[]
+
+  @@index([taskId, year])
+  @@map("subtasks")
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  shortName String?  @map("short_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users           User[]
+  subtaskAssignments SubtaskDepartment[]
+  reports         QuarterlyReport[]
+
+  @@map("departments")
+}
+
+// ---------------------------------------------------------------------------
+// 3.2 Назначения и отчётность
+// ---------------------------------------------------------------------------
+
+model SubtaskDepartment {
+  id           String                @id @default(uuid())
+  subtask      Subtask               @relation(fields: [subtaskId], references: [id], onDelete: Cascade)
+  subtaskId    String                @map("subtask_id")
+  department   Department            @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId String                @map("department_id")
+  role         SubtaskDepartmentRole @default(owner)
+  createdAt    DateTime              @default(now()) @map("created_at")
+
+  @@unique([subtaskId, departmentId])
+  @@map("subtask_departments")
+}
+
+model ReportingPeriod {
+  id                String   @id @default(uuid())
+  year              Int
+  quarter           Int
+  collectionStart   DateTime @map("collection_start")
+  collectionEnd     DateTime @map("collection_end")
+  aggregationStart  DateTime @map("aggregation_start")
+  aggregationEnd    DateTime @map("aggregation_end")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  reports   QuarterlyReport[]
+  summaries DirectionSummary[]
+
+  @@unique([year, quarter])
+  @@map("reporting_periods")
+}
+
+/// Центральная сущность отчётности: 1 запись = 1 подзадача + 1 квартал + 1 отдел.
+model QuarterlyReport {
+  id                String          @id @default(uuid())
+  subtask           Subtask         @relation(fields: [subtaskId], references: [id], onDelete: Cascade)
+  subtaskId         String          @map("subtask_id")
+  reportingPeriod   ReportingPeriod @relation(fields: [reportingPeriodId], references: [id], onDelete: Cascade)
+  reportingPeriodId String          @map("reporting_period_id")
+  department        Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId      String          @map("department_id")
+  content           String          @default("")
+  status            ReportStatus    @default(not_started)
+  submittedBy       User?           @relation("SubmittedReports", fields: [submittedById], references: [id])
+  submittedById     String?         @map("submitted_by")
+  submittedAt       DateTime?       @map("submitted_at")
+  reviewedBy        User?           @relation("ReviewedReports", fields: [reviewedById], references: [id])
+  reviewedById      String?         @map("reviewed_by")
+  reviewedAt        DateTime?       @map("reviewed_at")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  revisions   ReportRevision[]
+  items       ReportItem[]
+  attachments ReportAttachment[]
+
+  @@unique([subtaskId, reportingPeriodId, departmentId])
+  @@index([departmentId, reportingPeriodId])
+  @@map("quarterly_reports")
+}
+
+/// Этап внутри квартального отчёта отдела (department_description.md §3):
+/// отдел дробит подзадачу на шаги, чтобы считать процент выполнения пошагово.
+model ReportItem {
+  id        String          @id @default(uuid())
+  report    QuarterlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId  String          @map("report_id")
+  title     String
+  content   String          @default("")
+  status    ReportStatus    @default(not_started)
+  sortOrder Int             @map("sort_order")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  assignees   ReportItemAssignee[]
+  attachments ReportAttachment[]
+
+  @@index([reportId, sortOrder])
+  @@map("report_items")
+}
+
+/// Исполнитель этапа: сотрудник системы (userId) или внешний участник (externalName).
+model ReportItemAssignee {
+  id           String     @id @default(uuid())
+  reportItem   ReportItem @relation(fields: [reportItemId], references: [id], onDelete: Cascade)
+  reportItemId String     @map("report_item_id")
+  user         User?      @relation(fields: [userId], references: [id])
+  userId       String?    @map("user_id")
+  externalName String?    @map("external_name")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([reportItemId, userId])
+  @@map("report_item_assignees")
+}
+
+/// Файл (документ/фото), прикреплённый к отчёту целиком или к конкретному этапу.
+model ReportAttachment {
+  id           String          @id @default(uuid())
+  report       QuarterlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId     String          @map("report_id")
+  reportItem   ReportItem?     @relation(fields: [reportItemId], references: [id], onDelete: Cascade)
+  reportItemId String?         @map("report_item_id")
+  fileName     String          @map("file_name")
+  mimeType     String          @map("mime_type")
+  sizeBytes    Int             @map("size_bytes")
+  storagePath  String          @map("storage_path")
+  uploadedBy   User?           @relation(fields: [uploadedById], references: [id])
+  uploadedById String?         @map("uploaded_by")
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  @@index([reportId])
+  @@index([reportItemId])
+  @@map("report_attachments")
+}
+
+/// История правок текста отчёта (audit trail).
+model ReportRevision {
+  id        String          @id @default(uuid())
+  report    QuarterlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId  String          @map("report_id")
+  content   String
+  changedBy User?           @relation(fields: [changedById], references: [id])
+  changedById String?       @map("changed_by")
+  changedAt DateTime        @default(now()) @map("changed_at")
+
+  @@index([reportId])
+  @@map("report_revisions")
+}
+
+// ---------------------------------------------------------------------------
+// 3.3 Пользователи и агрегация
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  fullName     String     @map("full_name")
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?    @map("department_id")
+  role         UserRole   @default(dept_user)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  submittedReports QuarterlyReport[] @relation("SubmittedReports")
+  reviewedReports  QuarterlyReport[] @relation("ReviewedReports")
+  reportRevisions  ReportRevision[]
+  approvedSummaries DirectionSummary[]
+  reportItemAssignments ReportItemAssignee[]
+  uploadedAttachments   ReportAttachment[]
+
+  @@map("users")
+}
+
+/// Сводка руководителя направления за квартал.
+model DirectionSummary {
+  id                String          @id @default(uuid())
+  direction         Direction       @relation(fields: [directionId], references: [id], onDelete: Cascade)
+  directionId       String          @map("direction_id")
+  reportingPeriod   ReportingPeriod @relation(fields: [reportingPeriodId], references: [id], onDelete: Cascade)
+  reportingPeriodId String          @map("reporting_period_id")
+  completedItems    String          @map("completed_items")
+  deviations        String?
+  risks             String?
+  status            SummaryStatus   @default(draft)
+  approvedBy        User?           @relation(fields: [approvedById], references: [id])
+  approvedById      String?         @map("approved_by")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@unique([directionId, reportingPeriodId])
+  @@map("direction_summaries")
+}
+
+// ---------------------------------------------------------------------------
+// 3.4 Служебные
+// ---------------------------------------------------------------------------
+
+/// Лог импорта Excel — для трассировки, из какой ячейки исходного файла
+/// появилась та или иная сущность.
+model ExcelImportRun {
+  id         String   @id @default(uuid())
+  fileName   String   @map("file_name")
+  sheetName  String   @map("sheet_name")
+  rowNumber  Int      @map("row_number")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  rawCell    String?  @map("raw_cell")
+  importedAt DateTime @default(now()) @map("imported_at")
+
+  @@index([entityType, entityId])
+  @@map("excel_import_runs")
+}
