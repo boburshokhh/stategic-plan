@@ -1,0 +1,49 @@
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-body);
+  background: var(--color-bg-page);
+}
+
+.table td {
+  padding: 14px 20px;
+  font-size: 0.8125rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-primary) 3%, #fff);
+}
+
+.rowDanger {
+  background: color-mix(in srgb, var(--color-danger) 4%, #fff);
+}
+
+.emptyWrap {
+  padding: 24px;
+}

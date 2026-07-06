@@ -5,6 +5,7 @@ import { X, Inbox } from "lucide-react";
 import type { Subtask } from "../../lib/api/types";
 import { useBySubtaskReports } from "../../lib/hooks/useReports";
 import { usePeriod } from "../../lib/period/PeriodContext";
+import { formatQuarterYear } from "../../lib/format";
 import { StatusBadge } from "../ui/StatusBadge";
 import { CompletenessBar } from "../ui/CompletenessBar";
 import { EmptyState } from "../ui/EmptyState";
@@ -36,7 +37,7 @@ export function SubtaskReportsDrawer({ subtask, ownDepartmentId, onClose }: Subt
         </div>
 
         <div style={{ fontSize: "0.8125rem", color: "var(--color-text-body)" }}>
-          {selectedPeriod ? `Q${selectedPeriod.quarter} ${selectedPeriod.year}` : "Период не выбран"}
+          {selectedPeriod ? formatQuarterYear(selectedPeriod.quarter, selectedPeriod.year) : "Период не выбран"}
         </div>
 
         {isLoading && <LoadingSkeleton lines={2} height={60} />}

@@ -1,44 +1,188 @@
 .banner {
-  background: var(--color-bg-surface);
+  position: relative;
+  overflow: hidden;
+  background: var(--color-primary);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 24px;
+  min-height: 140px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  padding: 24px;
+  color: #fff;
+}
+
+.bannerAdmin {
+  background: color-mix(in srgb, var(--color-primary) 88%, #fff);
+}
+
+.decor {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 33%;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  flex-wrap: wrap;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .info {
   display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.iconWrap {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-control);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.textBlock {
-  display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.phaseBadge {
+  padding: 4px 8px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, #fff 20%, transparent);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.periodLabel {
+  font-size: 0.8125rem;
+  color: color-mix(in srgb, #fff 85%, transparent);
+  font-weight: 500;
 }
 
 .title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text-heading);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .subtitle {
-  font-size: 0.8125rem;
-  color: var(--color-text-body);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, #fff 92%, transparent);
+  max-width: 42rem;
 }
+
+.highlight {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.deadlineBlock {
+  text-align: left;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .deadlineBlock {
+    text-align: right;
+  }
+}
+
+.deadlineLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+
+.deadlineValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  background: #fff;
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-control);
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(38, 43, 67, 0.12);
+}
+
+.bannerOnboarding {
+  background: color-mix(in srgb, var(--color-info) 92%, #1b1b23);
+}
+
+.steps {
+  margin: 8px 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, #fff 92%, transparent);
+}
+
+.steps li {
+  margin-bottom: 4px;
+}
+
+.steps li::marker {
+  color: color-mix(in srgb, #fff 70%, transparent);
+}
+
+.ctaButtonSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  background: color-mix(in srgb, #fff 15%, transparent);
+  color: #fff;
+  border: 1px solid color-mix(in srgb, #fff 35%, transparent);
+  border-radius: var(--radius-control);
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.ctaButtonSecondary:hover {
+  background: color-mix(in srgb, #fff 22%, transparent);
+}
+
+.ctaButton:hover {
+  transform: translateY(-1px);
+}
+

@@ -1,0 +1,21 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 1440px;
+  width: 100%;
+}
+
+.directions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .directions {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+}

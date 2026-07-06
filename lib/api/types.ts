@@ -75,6 +75,29 @@ export interface SubtaskDepartmentAssignment {
   department: Department;
 }
 
+export interface SubtaskParticipationEnrollment {
+  role: SubtaskDepartmentRole;
+  enrolledAt: string;
+}
+
+export interface SubtaskParticipationItem {
+  subtaskId: string;
+  year: number;
+  title: string;
+  sortOrder: number;
+  expectedResult: string | null;
+  task: { id: string; number: number | null; title: string };
+  direction: { id: string; code: string; name: string };
+  enrollment: SubtaskParticipationEnrollment | null;
+  canUnenroll: boolean;
+}
+
+export interface ParticipateSubtasksResult {
+  enrolled: number;
+  skipped: number;
+  reportsCreated: number;
+}
+
 export interface Subtask {
   id: string;
   taskId: string;
@@ -186,4 +209,40 @@ export interface ImportStatus {
     quarterlyReports: number;
     departments: number;
   };
+}
+
+export interface DashboardDirectionStat {
+  directionId: string;
+  directionCode: string;
+  directionName: string;
+  totalExpected: number;
+  completed: number;
+  inProgress: number;
+  missingCount: number;
+  completenessPercent: number;
+}
+
+export interface DashboardMissingReport {
+  directionId: string;
+  directionName: string;
+  subtaskId: string;
+  subtaskTitle: string;
+  taskTitle: string;
+  departmentId: string;
+  departmentName: string;
+}
+
+export interface DashboardOverview {
+  year: number;
+  quarter: number;
+  reportingPeriodId?: string;
+  directions: DashboardDirectionStat[];
+  totals: {
+    completed: number;
+    inProgress: number;
+    missingCount: number;
+    totalExpected: number;
+  };
+  missingReports: DashboardMissingReport[];
+  overallCompletenessPercent: number;
 }

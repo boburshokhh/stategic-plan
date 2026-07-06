@@ -1,15 +1,18 @@
 import { api } from "./client";
 import type {
   AuthUser,
+  DashboardOverview,
   Department,
   DepartmentMember,
   LoginResponse,
+  ParticipateSubtasksResult,
   QuarterlyReport,
   ReportingPeriod,
   ReportItem,
   ReportItemAssignee,
   ReportStatus,
   StrategicPlanTree,
+  SubtaskParticipationItem,
   ImportStatus,
   ImportSummary,
 } from "./types";
@@ -23,6 +26,8 @@ export const reportsApi = {
   findMy: (periodId?: string) => api.get<QuarterlyReport[]>(`/reports/my${periodId ? `?periodId=${periodId}` : ""}`),
   findBySubtask: (subtaskId: string, periodId?: string) =>
     api.get<QuarterlyReport[]>(`/reports/by-subtask/${subtaskId}${periodId ? `?periodId=${periodId}` : ""}`),
+  ensureMy: (subtaskId: string, periodId: string) =>
+    api.post<QuarterlyReport>("/reports/ensure", { subtaskId, periodId }),
   findOne: (id: string) => api.get<QuarterlyReport>(`/reports/${id}`),
   update: (id: string, dto: { content: string; status: ReportStatus }) =>
     api.patch<QuarterlyReport>(`/reports/${id}`, dto),
@@ -67,6 +72,11 @@ export const plansApi = {
 export const departmentsApi = {
   findAll: () => api.get<Department[]>("/departments"),
   findMembers: (id: string) => api.get<DepartmentMember[]>(`/departments/${id}/members`),
+  getMySubtasks: (year: number) => api.get<SubtaskParticipationItem[]>(`/departments/me/subtasks?year=${year}`),
+  participate: (subtaskIds: string[]) =>
+    api.post<ParticipateSubtasksResult>("/departments/me/subtasks/participate", { subtaskIds }),
+  unparticipate: (subtaskId: string) =>
+    api.delete<{ removed: boolean }>(`/departments/me/subtasks/${subtaskId}/participate`),
 };
 
 export const importApi = {
@@ -76,4 +86,9 @@ export const importApi = {
     form.append("file", file);
     return api.post<ImportSummary>("/import/excel", form);
   },
+};
+
+export const dashboardApi = {
+  getOverview: (year: number, quarter: number) =>
+    api.get<DashboardOverview>(`/dashboard/overview?year=${year}&quarter=${quarter}`),
 };

@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { reportsApi } from "../api/endpoints";
 import type { ReportStatus } from "../api/types";
 
-export function useMyReports(periodId?: string) {
+export function useMyReports(periodId?: string, enabled = true) {
   return useQuery({
     queryKey: ["reports", "my", periodId],
     queryFn: () => reportsApi.findMy(periodId),
+    enabled,
   });
 }
 

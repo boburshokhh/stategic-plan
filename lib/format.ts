@@ -17,3 +17,22 @@ export function formatDateTime(value: string) {
 export function formatDate(value: string) {
   return new Date(value).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
+
+export function formatDateShort(value: string) {
+  return new Date(value).toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+}
+
+export function daysUntil(value: string) {
+  const target = new Date(value);
+  const now = new Date();
+  const diff = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
+export function formatQuarter(quarter: number) {
+  return `Квартал ${quarter}`;
+}
+
+export function formatQuarterYear(quarter: number, year: number) {
+  return `Квартал ${quarter} ${year}`;
+}

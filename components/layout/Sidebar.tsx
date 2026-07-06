@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, TreePine, LogOut, Upload } from "lucide-react";
+import { LayoutDashboard, ClipboardList, TreePine, LogOut, Upload, ListChecks } from "lucide-react";
 import { useAuth } from "../../lib/auth/AuthContext";
 import { usePeriod } from "../../lib/period/PeriodContext";
 import { useMyReports } from "../../lib/hooks/useReports";
+import { useMobileNav } from "../../lib/layout/MobileNavContext";
 import { Badge } from "../ui/Badge";
 import styles from "./Sidebar.module.css";
 
@@ -18,6 +19,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { selectedPeriod } = usePeriod();
+  const { isOpen, close } = useMobileNav();
   const { data: myReports } = useMyReports(selectedPeriod?.id);
 
   const pendingCount = myReports?.filter((report) => report.status !== "completed").length ?? 0;
@@ -25,7 +27,10 @@ export function Sidebar() {
   const navItems = [
     { href: "/dashboard", label: "Дашборд", icon: LayoutDashboard },
     ...(user?.role === "dept_user"
-      ? [{ href: "/reports/my", label: "Мои отчёты", icon: ClipboardList, count: pendingCount }]
+      ? [
+          { href: "/reports/my", label: "Мои отчёты", icon: ClipboardList, count: pendingCount },
+          { href: "/plan/participation", label: "Выбор подзадач", icon: ListChecks },
+        ]
       : []),
     { href: "/plan", label: "Стратегический план", icon: TreePine },
     ...(user?.role === "admin"
@@ -34,7 +39,7 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={[styles.sidebar, isOpen ? styles.sidebarOpen : ""].join(" ")}>
       <div className={styles.brand}>
         <span className={styles.brandTitle}>Стратегический план</span>
         <span className={styles.brandSubtitle}>Asia Trans Gas · 2026–2028</span>
@@ -48,6 +53,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={close}
               className={[styles.navItem, isActive ? styles.navItemActive : ""].join(" ")}
             >
               <Icon size={18} strokeWidth={1.75} />

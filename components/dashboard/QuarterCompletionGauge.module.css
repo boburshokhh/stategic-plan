@@ -1,0 +1,153 @@
+.card {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+.header {
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-body);
+  margin-top: 4px;
+}
+
+.gaugeWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 16px;
+}
+
+.gauge {
+  position: relative;
+  width: min(100%, 220px);
+  aspect-ratio: 2 / 1.1;
+}
+
+.gaugeSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.gaugeValue {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.percent {
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 700;
+  color: var(--color-text-heading);
+  line-height: 1;
+}
+
+.percentLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-body);
+  margin-top: 4px;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+@media (min-width: 400px) {
+  .legend {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.legendItem {
+  text-align: center;
+  padding: 10px 6px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-border) 20%, var(--color-bg-surface));
+}
+
+.legendValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.legendLabel {
+  font-size: 0.6875rem;
+  color: var(--color-text-body);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.legendValueSuccess {
+  color: var(--color-success);
+}
+
+.legendValueWarning {
+  color: var(--color-warning);
+}
+
+.legendValueMuted {
+  color: var(--color-secondary);
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--color-text-body);
+  text-align: center;
+  line-height: 1.45;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 12px;
+  font-size: 0.875rem;
+  color: var(--color-text-body);
+  line-height: 1.5;
+}
+
+.trackBg {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-border) 55%, #fff);
+  stroke-linecap: round;
+}
+
+.trackFill {
+  fill: none;
+  stroke: var(--color-success);
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { QuarterlyReport } from "../../lib/api/types";
+import { formatQuarterYear } from "../../lib/format";
 import { StatusBadge } from "../ui/StatusBadge";
 import { CompletenessBar } from "../ui/CompletenessBar";
 import tableStyles from "../ui/Table.module.css";
@@ -37,7 +38,9 @@ export function MyReportsTable({ reports }: { reports: QuarterlyReport[] }) {
               </div>
             </td>
             <td>
-              Q{report.reportingPeriod?.quarter} {report.reportingPeriod?.year}
+              {report.reportingPeriod
+                ? formatQuarterYear(report.reportingPeriod.quarter, report.reportingPeriod.year)
+                : "—"}
             </td>
             <td style={{ minWidth: 140 }}>
               <CompletenessBar

@@ -8,7 +8,7 @@ interface PlanYearTabsProps {
 
 export function PlanYearTabs({ year, onChange }: PlanYearTabsProps) {
   return (
-    <div className={styles.tabs}>
+    <div className={styles.wrap}>
       {PLAN_YEARS.map((planYear) => (
         <button
           key={planYear}

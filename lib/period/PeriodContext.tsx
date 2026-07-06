@@ -18,16 +18,7 @@ interface PeriodContextValue {
 
 const PLAN_YEARS = [2026, 2027, 2028];
 
-function computePhase(period: ReportingPeriod | null): ReportPhase {
-  if (!period) return "execution";
-  const now = new Date();
-  const collectionStart = new Date(period.collectionStart);
-  const collectionEnd = new Date(period.collectionEnd);
-  const aggregationStart = new Date(period.aggregationStart);
-  const aggregationEnd = new Date(period.aggregationEnd);
-
-  if (now >= collectionStart && now <= collectionEnd) return "collection";
-  if (now >= aggregationStart && now <= aggregationEnd) return "aggregation";
+function computePhase(_period: ReportingPeriod | null): ReportPhase {
   return "execution";
 }
 

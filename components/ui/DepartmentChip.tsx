@@ -7,5 +7,6 @@ interface DepartmentChipProps {
 }
 
 export function DepartmentChip({ name, role }: DepartmentChipProps) {
-  return <span className={[styles.chip, styles[role]].join(" ")}>{name}</span>;
+  const label = role === "owner" ? `ОТВ: ${name}` : name;
+  return <span className={[styles.chip, styles[role]].join(" ")}>{label}</span>;
 }

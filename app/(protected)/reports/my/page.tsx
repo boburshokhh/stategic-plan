@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ClipboardList, Info } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList } from "lucide-react";
 import { usePageHeader } from "../../../../lib/layout/PageHeaderContext";
 import { usePeriod } from "../../../../lib/period/PeriodContext";
 import { useMyReports } from "../../../../lib/hooks/useReports";
@@ -11,6 +12,8 @@ import { EmptyState } from "../../../../components/ui/EmptyState";
 import { ErrorAlert } from "../../../../components/ui/ErrorAlert";
 import { LoadingSkeleton } from "../../../../components/ui/LoadingSkeleton";
 import { MyReportsTable, sortReports } from "../../../../components/reports/MyReportsTable";
+import { Button } from "../../../../components/ui/Button";
+import { formatQuarterYear } from "../../../../lib/format";
 import type { ReportStatus } from "../../../../lib/api/types";
 
 const STATUS_FILTERS: Array<{ value: ReportStatus | "all"; label: string }> = [
@@ -22,7 +25,7 @@ const STATUS_FILTERS: Array<{ value: ReportStatus | "all"; label: string }> = [
 
 export default function MyReportsPage() {
   usePageHeader("Мои отчёты", [{ label: "Мои отчёты" }]);
-  const { selectedPeriod, phase } = usePeriod();
+  const { selectedPeriod } = usePeriod();
   const { data: reports, isLoading, isError, refetch } = useMyReports(selectedPeriod?.id);
 
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "all">("all");
@@ -52,18 +55,9 @@ export default function MyReportsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {phase !== "collection" && (
-        <div className="page-banner">
-          <Info size={16} />
-          <span>
-            Окно сдачи итогового отчёта за этот квартал закрыто. Этапы и вложения по-прежнему можно заполнять.
-          </span>
-        </div>
-      )}
-
       <Card
         title="Очередь отчётов"
-        subtitle={selectedPeriod ? `Q${selectedPeriod.quarter} ${selectedPeriod.year}` : undefined}
+        subtitle={selectedPeriod ? formatQuarterYear(selectedPeriod.quarter, selectedPeriod.year) : undefined}
       >
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
           <Input
@@ -97,7 +91,18 @@ export default function MyReportsPage() {
           <EmptyState
             icon={ClipboardList}
             title="Отчётов не найдено"
-            description="Попробуйте изменить фильтры или выбрать другой отчётный период."
+            description={
+              reports?.length === 0
+                ? "Сначала выберите подзадачи года, в которых участвует ваш отдел."
+                : "Попробуйте изменить фильтры или выбрать другой отчётный период."
+            }
+            action={
+              reports?.length === 0 ? (
+                <Link href="/plan/participation">
+                  <Button variant="primary">Выбрать подзадачи для участия</Button>
+                </Link>
+              ) : undefined
+            }
           />
         )}
         {!isLoading && !isError && filteredReports.length > 0 && <MyReportsTable reports={filteredReports} />}

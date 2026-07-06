@@ -17,7 +17,7 @@ import { ReportItemCard } from "../../../../components/reports/ReportItemCard";
 import { AddReportItemForm } from "../../../../components/reports/AddReportItemForm";
 import { AttachmentList } from "../../../../components/reports/AttachmentList";
 import { RevisionHistory } from "../../../../components/reports/RevisionHistory";
-import { formatDateTime } from "../../../../lib/format";
+import { formatDateTime, formatQuarterYear } from "../../../../lib/format";
 import type { ReportStatus } from "../../../../lib/api/types";
 import { ApiError } from "../../../../lib/api/client";
 import styles from "./page.module.css";
@@ -113,7 +113,9 @@ export default function ReportEditorPage() {
           <div className={styles.metaItem}>
             <span className={styles.metaLabel}>Квартал</span>
             <span className={styles.metaValue}>
-              Q{report.reportingPeriod?.quarter} {report.reportingPeriod?.year}
+              {report.reportingPeriod
+                ? formatQuarterYear(report.reportingPeriod.quarter, report.reportingPeriod.year)
+                : "—"}
             </span>
           </div>
           <div className={styles.metaItem}>
@@ -133,10 +135,6 @@ export default function ReportEditorPage() {
           total={report.progress.totalItems}
         />
       </Card>
-
-      {!canEdit && (
-        <div className="page-banner">Отчёт доступен только для просмотра: окно сбора этого квартала закрыто.</div>
-      )}
 
       <Card title="Этапы выполнения" subtitle="Разбейте подзадачу на шаги, чтобы отслеживать прогресс">
         <div className={styles.itemsList}>
