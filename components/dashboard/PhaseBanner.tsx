@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Edit3 } from "lucide-react";
 import { usePeriod } from "../../lib/period/PeriodContext";

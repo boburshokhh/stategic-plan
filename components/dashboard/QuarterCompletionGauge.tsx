@@ -76,7 +76,7 @@ export function QuarterCompletionGauge({
 
       {total === 0 ? (
         <p className={styles.empty}>
-          {emptyHint ?? "Статистика появится после выбора подзадач вашего отдела."}
+          {emptyHint ?? "Статистика появится, когда вашему отделу будут назначены подзадачи в плане."}
         </p>
       ) : (
         <>
