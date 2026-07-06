@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
 import { usePageHeader } from "../../../../lib/layout/PageHeaderContext";
 import { useReport, useReorderReportItems, useUpdateReport } from "../../../../lib/hooks/useReports";
 import { useCanEditReport } from "../../../../lib/hooks/useCanEditReport";
+import {
+  MIN_COMPLETED_CONTENT_LENGTH,
+  MIN_REPORT_ITEMS,
+  stepsRequirementMessage,
+} from "../../../../lib/reports/reportConstraints";
 import { StatusBadge } from "../../../../components/ui/StatusBadge";
 import { CompletenessBar } from "../../../../components/ui/CompletenessBar";
 import { LoadingSkeleton } from "../../../../components/ui/LoadingSkeleton";
@@ -21,8 +25,6 @@ import type { ReportStatus } from "../../../../lib/api/types";
 import { ApiError } from "../../../../lib/api/client";
 import styles from "./page.module.css";
 
-const MIN_COMPLETED_CONTENT_LENGTH = 10;
-
 const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string; hint?: string }> = [
   { value: "not_started", label: "Не начато" },
   { value: "in_progress", label: "В работе" },
@@ -37,8 +39,7 @@ export default function ReportEditorPage() {
 
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<ReportStatus>("not_started");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveAlert, setSaveAlert] = useState<{ variant: "error" | "success"; message: string } | null>(null);
   const [loadedReportId, setLoadedReportId] = useState<string | null>(null);
 
   if (report && loadedReportId !== report.id) {
@@ -60,7 +61,9 @@ export default function ReportEditorPage() {
   const reorderMutation = useReorderReportItems(reportId);
 
   const items = [...(report?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
-  const canMarkCompleted = content.trim().length >= MIN_COMPLETED_CONTENT_LENGTH;
+  const stepsCount = items.length;
+  const stepsMet = stepsCount >= MIN_REPORT_ITEMS;
+  const canMarkCompleted = stepsMet && content.trim().length >= MIN_COMPLETED_CONTENT_LENGTH;
 
   function handleMove(itemId: string, direction: "up" | "down") {
     const index = items.findIndex((item) => item.id === itemId);
@@ -73,16 +76,32 @@ export default function ReportEditorPage() {
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setFormError(null);
-    if (status === "completed" && !canMarkCompleted) {
-      setFormError(`Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`);
+    setSaveAlert(null);
+
+    if (!stepsMet) {
+      const message = stepsRequirementMessage(stepsCount);
+      setSaveAlert({ variant: "error", message });
       return;
     }
+
+    if (status === "completed" && !canMarkCompleted) {
+      const message = content.trim().length < MIN_COMPLETED_CONTENT_LENGTH
+        ? `Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`
+        : `Для статуса «Выполнено» необходимо добавить минимум ${MIN_REPORT_ITEMS} шага реализации`;
+      setSaveAlert({ variant: "error", message });
+      return;
+    }
+
     updateMutation.mutate(
       { content, status },
       {
-        onSuccess: () => setSavedAt(Date.now()),
-        onError: (error) => setFormError(error instanceof ApiError ? error.message : "Не удалось сохранить отчёт"),
+        onSuccess: () => {
+          setSaveAlert({ variant: "success", message: "Отчёт успешно сохранён." });
+        },
+        onError: (error) => {
+          const message = error instanceof ApiError ? error.message : "Не удалось сохранить отчёт";
+          setSaveAlert({ variant: "error", message });
+        },
       },
     );
   }
@@ -91,7 +110,7 @@ export default function ReportEditorPage() {
     if (report) {
       setContent(report.content);
       setStatus(report.status);
-      setFormError(null);
+      setSaveAlert(null);
     }
   }
 
@@ -114,7 +133,19 @@ export default function ReportEditorPage() {
 
   return (
     <div className={styles.page}>
+      {saveAlert && (
+        <ErrorAlert
+          variant={saveAlert.variant}
+          message={saveAlert.message}
+          onDismiss={() => setSaveAlert(null)}
+        />
+      )}
+
       <section className={styles.overviewCard}>
+        <ErrorAlert
+          variant={stepsMet ? "success" : "warning"}
+          message={stepsRequirementMessage(stepsCount)}
+        />
         <div className={styles.metaGrid}>
           <div>
             <span className={styles.metaLabel}>Отдел</span>
@@ -161,6 +192,7 @@ export default function ReportEditorPage() {
               item={item}
               departmentId={report.departmentId}
               canEdit={canEdit}
+              canRemove={stepsCount > MIN_REPORT_ITEMS}
               isFirst={index === 0}
               isLast={index === items.length - 1}
               onMove={(direction) => handleMove(item.id, direction)}
@@ -186,7 +218,8 @@ export default function ReportEditorPage() {
               placeholder="Введите краткие итоги работы по данной подзадаче..."
             />
             <p className={styles.fieldHint}>
-              Минимум {MIN_COMPLETED_CONTENT_LENGTH} символов для перевода в статус «Выполнено».
+              Минимум {MIN_COMPLETED_CONTENT_LENGTH} символов для статуса «Выполнено».
+              {!stepsMet && ` Также требуется не менее ${MIN_REPORT_ITEMS} шагов реализации.`}
             </p>
           </div>
 
@@ -229,20 +262,8 @@ export default function ReportEditorPage() {
             </div>
           </div>
 
-          {formError && (
-            <div style={{ marginTop: 16 }}>
-              <ErrorAlert message={formError} />
-            </div>
-          )}
-
           {canEdit && (
             <div className={styles.formActions}>
-              {savedAt && (
-                <span className={styles.savedHint}>
-                  <CheckCircle2 size={14} />
-                  Сохранено
-                </span>
-              )}
               <Button type="button" variant="outline" onClick={handleCancel}>
                 Отмена
               </Button>

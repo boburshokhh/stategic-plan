@@ -26,12 +26,22 @@ interface ReportItemCardProps {
   item: ReportItem;
   departmentId?: string | null;
   canEdit: boolean;
+  canRemove: boolean;
   isFirst: boolean;
   isLast: boolean;
   onMove: (direction: "up" | "down") => void;
 }
 
-export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst, isLast, onMove }: ReportItemCardProps) {
+export function ReportItemCard({
+  reportId,
+  item,
+  departmentId,
+  canEdit,
+  canRemove,
+  isFirst,
+  isLast,
+  onMove,
+}: ReportItemCardProps) {
   const updateMutation = useUpdateReportItem(reportId);
   const removeMutation = useRemoveReportItem(reportId);
   const [title, setTitle] = useState(item.title);
@@ -58,6 +68,7 @@ export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst,
   }
 
   function handleRemove() {
+    if (!canRemove) return;
     if (window.confirm(`Удалить этап «${item.title}»?`)) {
       removeMutation.mutate(item.id);
     }
@@ -108,7 +119,7 @@ export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst,
           ) : (
             <span className={styles.statusReadonly}>{STATUS_OPTIONS.find((o) => o.value === item.status)?.label}</span>
           )}
-          {canEdit && (
+          {canEdit && canRemove && (
             <button type="button" className={styles.deleteButton} onClick={handleRemove} title="Удалить этап">
               <Trash2 size={18} />
             </button>
