@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "../../lib/auth/AuthContext";
 import { PageHeaderProvider } from "../../lib/layout/PageHeaderContext";
+import { NotificationProvider } from "../../lib/notifications/NotificationContext";
 import { AppShell } from "../../components/layout/AppShell";
+import { NotificationToaster } from "../../components/ui/NotificationToaster";
 import { EmptyState } from "../../components/ui/EmptyState";
 
 function FullScreenState({ children }: { children: React.ReactNode }) {
@@ -50,8 +52,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <PageHeaderProvider>
-      <AppShell>{children}</AppShell>
-    </PageHeaderProvider>
+    <NotificationProvider>
+      <PageHeaderProvider>
+        <AppShell>{children}</AppShell>
+        <NotificationToaster />
+      </PageHeaderProvider>
+    </NotificationProvider>
   );
 }

@@ -23,7 +23,14 @@ import { RevisionHistory } from "../../../../components/reports/RevisionHistory"
 import { formatDateTime, formatQuarterYear } from "../../../../lib/format";
 import type { ReportStatus } from "../../../../lib/api/types";
 import { ApiError } from "../../../../lib/api/client";
+import { useNotification } from "../../../../lib/notifications/NotificationContext";
 import styles from "./page.module.css";
+
+const STATUS_LABELS: Record<ReportStatus, string> = {
+  not_started: "Не начато",
+  in_progress: "В работе",
+  completed: "Выполнено",
+};
 
 const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string; hint?: string }> = [
   { value: "not_started", label: "Не начато" },
@@ -35,11 +42,11 @@ export default function ReportEditorPage() {
   const params = useParams<{ id: string }>();
   const reportId = params.id;
   const { data: report, isLoading, isError, refetch } = useReport(reportId);
+  const { notify } = useNotification();
   const canEdit = useCanEditReport(report);
 
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<ReportStatus>("not_started");
-  const [saveAlert, setSaveAlert] = useState<{ variant: "error" | "success"; message: string } | null>(null);
   const [loadedReportId, setLoadedReportId] = useState<string | null>(null);
 
   if (report && loadedReportId !== report.id) {
@@ -76,19 +83,22 @@ export default function ReportEditorPage() {
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setSaveAlert(null);
 
     if (!stepsMet) {
-      const message = stepsRequirementMessage(stepsCount);
-      setSaveAlert({ variant: "error", message });
+      notify({
+        variant: "error",
+        title: "Не удалось сохранить",
+        message: stepsRequirementMessage(stepsCount),
+      });
       return;
     }
 
     if (status === "completed" && !canMarkCompleted) {
-      const message = content.trim().length < MIN_COMPLETED_CONTENT_LENGTH
-        ? `Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`
-        : `Для статуса «Выполнено» необходимо добавить минимум ${MIN_REPORT_ITEMS} шага реализации`;
-      setSaveAlert({ variant: "error", message });
+      const message =
+        content.trim().length < MIN_COMPLETED_CONTENT_LENGTH
+          ? `Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`
+          : `Для статуса «Выполнено» необходимо добавить минимум ${MIN_REPORT_ITEMS} шага реализации`;
+      notify({ variant: "error", title: "Не удалось сохранить", message });
       return;
     }
 
@@ -96,11 +106,18 @@ export default function ReportEditorPage() {
       { content, status },
       {
         onSuccess: () => {
-          setSaveAlert({ variant: "success", message: "Отчёт успешно сохранён." });
+          notify({
+            variant: "success",
+            title: "Отчёт сохранён",
+            message: `Статус: ${STATUS_LABELS[status]}`,
+          });
         },
         onError: (error) => {
-          const message = error instanceof ApiError ? error.message : "Не удалось сохранить отчёт";
-          setSaveAlert({ variant: "error", message });
+          notify({
+            variant: "error",
+            title: "Не удалось сохранить",
+            message: error instanceof ApiError ? error.message : "Произошла ошибка при сохранении отчёта",
+          });
         },
       },
     );
@@ -110,7 +127,6 @@ export default function ReportEditorPage() {
     if (report) {
       setContent(report.content);
       setStatus(report.status);
-      setSaveAlert(null);
     }
   }
 
@@ -133,14 +149,6 @@ export default function ReportEditorPage() {
 
   return (
     <div className={styles.page}>
-      {saveAlert && (
-        <ErrorAlert
-          variant={saveAlert.variant}
-          message={saveAlert.message}
-          onDismiss={() => setSaveAlert(null)}
-        />
-      )}
-
       <section className={styles.overviewCard}>
         <ErrorAlert
           variant={stepsMet ? "success" : "warning"}
