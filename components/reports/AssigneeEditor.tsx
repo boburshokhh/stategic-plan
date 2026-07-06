@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, UserPlus } from "lucide-react";
+import { Plus, UserPlus, X } from "lucide-react";
 import { useDepartmentMembers } from "../../lib/hooks/useDepartments";
 import { useAssignItemMembers } from "../../lib/hooks/useReports";
 import type { ReportItemAssignee } from "../../lib/api/types";
@@ -58,16 +58,16 @@ export function AssigneeEditor({ reportId, itemId, assignees, departmentId, canE
         <span key={assignee.id} className={styles.chip}>
           {assignee.user?.fullName ?? assignee.externalName}
           {canEdit && (
-            <button type="button" className={styles.chipRemove} onClick={() => remove(assignee)}>
-              <X size={12} />
+            <button type="button" className={styles.chipRemove} onClick={() => remove(assignee)} aria-label="Удалить">
+              <X size={14} />
             </button>
           )}
         </span>
       ))}
 
-      {canEdit && !isAddingExternal && (
-        <select className={styles.addSelect} value="" onChange={(event) => addMember(event.target.value)}>
-          <option value="">+ Сотрудник отдела</option>
+      {canEdit && !isAddingExternal && availableMembers.length > 0 && (
+        <select className={styles.addDeptSelect} value="" onChange={(event) => addMember(event.target.value)}>
+          <option value="">Сотрудник отдела</option>
           {availableMembers.map((member) => (
             <option key={member.id} value={member.id}>
               {member.fullName}
@@ -76,14 +76,17 @@ export function AssigneeEditor({ reportId, itemId, assignees, departmentId, canE
         </select>
       )}
 
+      {canEdit && !isAddingExternal && availableMembers.length === 0 && (
+        <span className={styles.addDept}>
+          <Plus size={16} />
+          Сотрудник отдела
+        </span>
+      )}
+
       {canEdit && !isAddingExternal && (
-        <button
-          type="button"
-          className={styles.addSelect}
-          onClick={() => setIsAddingExternal(true)}
-          style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-        >
-          <UserPlus size={12} /> Внешний участник
+        <button type="button" className={styles.addExternal} onClick={() => setIsAddingExternal(true)}>
+          <UserPlus size={16} />
+          Внешний участник
         </button>
       )}
 

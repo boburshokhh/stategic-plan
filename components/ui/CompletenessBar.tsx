@@ -5,6 +5,10 @@ interface CompletenessBarProps {
   completed?: number;
   total?: number;
   showLabel?: boolean;
+  /** Подпись справа, например «2/5 Шагов» */
+  unitLabel?: string;
+  /** primary — всегда синий акцент (как в Stitch) */
+  tone?: "threshold" | "primary";
 }
 
 function thresholdVariant(percent: number) {
@@ -14,19 +18,24 @@ function thresholdVariant(percent: number) {
 }
 
 /** Progress bar полноты (department_description.md §3.1): X% (completed/total). */
-export function CompletenessBar({ percent, completed, total, showLabel = true }: CompletenessBarProps) {
-  const variant = thresholdVariant(percent);
+export function CompletenessBar({
+  percent,
+  completed,
+  total,
+  showLabel = true,
+  unitLabel,
+  tone = "threshold",
+}: CompletenessBarProps) {
+  const variant = tone === "primary" ? "primary" : thresholdVariant(percent);
+  const rightLabel =
+    unitLabel ?? (typeof completed === "number" && typeof total === "number" ? `${completed}/${total}` : undefined);
 
   return (
     <div className={styles.wrapper}>
       {showLabel && (
         <div className={styles.label}>
           <span className={styles.percent}>{percent}%</span>
-          {typeof completed === "number" && typeof total === "number" && (
-            <span>
-              {completed}/{total}
-            </span>
-          )}
+          {rightLabel && <span className={styles.unit}>{rightLabel}</span>}
         </div>
       )}
       <div className={styles.track}>

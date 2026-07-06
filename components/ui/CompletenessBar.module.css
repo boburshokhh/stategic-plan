@@ -5,7 +5,7 @@
 }
 
 .track {
-  height: 6px;
+  height: 8px;
   border-radius: var(--radius-pill);
   background: var(--color-border);
   overflow: hidden;
@@ -27,6 +27,14 @@
 
 .fill.success {
   background: var(--color-success);
+}
+
+.fill.primary {
+  background: var(--color-primary);
+}
+
+.unit {
+  color: var(--color-text-body);
 }
 
 .label {

@@ -6,12 +6,11 @@ import { CheckCircle2 } from "lucide-react";
 import { usePageHeader } from "../../../../lib/layout/PageHeaderContext";
 import { useReport, useReorderReportItems, useUpdateReport } from "../../../../lib/hooks/useReports";
 import { useCanEditReport } from "../../../../lib/hooks/useCanEditReport";
-import { Card } from "../../../../components/ui/Card";
 import { StatusBadge } from "../../../../components/ui/StatusBadge";
 import { CompletenessBar } from "../../../../components/ui/CompletenessBar";
 import { LoadingSkeleton } from "../../../../components/ui/LoadingSkeleton";
 import { ErrorAlert } from "../../../../components/ui/ErrorAlert";
-import { Field, Select, Textarea } from "../../../../components/ui/FormField";
+import { Textarea } from "../../../../components/ui/FormField";
 import { Button } from "../../../../components/ui/Button";
 import { ReportItemCard } from "../../../../components/reports/ReportItemCard";
 import { AddReportItemForm } from "../../../../components/reports/AddReportItemForm";
@@ -23,6 +22,12 @@ import { ApiError } from "../../../../lib/api/client";
 import styles from "./page.module.css";
 
 const MIN_COMPLETED_CONTENT_LENGTH = 10;
+
+const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string; hint?: string }> = [
+  { value: "not_started", label: "Не начато" },
+  { value: "in_progress", label: "В работе" },
+  { value: "completed", label: "Выполнено", hint: "требуется резюме" },
+];
 
 export default function ReportEditorPage() {
   const params = useParams<{ id: string }>();
@@ -36,7 +41,6 @@ export default function ReportEditorPage() {
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [loadedReportId, setLoadedReportId] = useState<string | null>(null);
 
-  // Подставляем данные отчёта в форму один раз при загрузке (без useEffect, см. react-hooks/set-state-in-effect).
   if (report && loadedReportId !== report.id) {
     setLoadedReportId(report.id);
     setContent(report.content);
@@ -56,6 +60,7 @@ export default function ReportEditorPage() {
   const reorderMutation = useReorderReportItems(reportId);
 
   const items = [...(report?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const canMarkCompleted = content.trim().length >= MIN_COMPLETED_CONTENT_LENGTH;
 
   function handleMove(itemId: string, direction: "up" | "down") {
     const index = items.findIndex((item) => item.id === itemId);
@@ -69,7 +74,7 @@ export default function ReportEditorPage() {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setFormError(null);
-    if (status === "completed" && content.trim().length < MIN_COMPLETED_CONTENT_LENGTH) {
+    if (status === "completed" && !canMarkCompleted) {
       setFormError(`Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`);
       return;
     }
@@ -92,9 +97,11 @@ export default function ReportEditorPage() {
 
   if (isLoading) {
     return (
-      <Card>
-        <LoadingSkeleton lines={6} height={20} />
-      </Card>
+      <div className={styles.page}>
+        <div className={styles.overviewCard}>
+          <LoadingSkeleton lines={6} height={20} />
+        </div>
+      </div>
     );
   }
 
@@ -102,15 +109,18 @@ export default function ReportEditorPage() {
     return <ErrorAlert message="Не удалось загрузить отчёт" onRetry={() => refetch()} />;
   }
 
+  const completedSteps = report.progress.completedItems;
+  const totalSteps = report.progress.totalItems;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <Card>
-        <div className={styles.metaRow}>
-          <div className={styles.metaItem}>
+    <div className={styles.page}>
+      <section className={styles.overviewCard}>
+        <div className={styles.metaGrid}>
+          <div>
             <span className={styles.metaLabel}>Отдел</span>
-            <span className={styles.metaValue}>{report.department?.shortName ?? report.department?.name}</span>
+            <span className={styles.metaValue}>{report.department?.shortName ?? report.department?.name ?? "—"}</span>
           </div>
-          <div className={styles.metaItem}>
+          <div>
             <span className={styles.metaLabel}>Квартал</span>
             <span className={styles.metaValue}>
               {report.reportingPeriod
@@ -118,25 +128,31 @@ export default function ReportEditorPage() {
                 : "—"}
             </span>
           </div>
-          <div className={styles.metaItem}>
+          <div>
             <span className={styles.metaLabel}>Статус</span>
-            <StatusBadge status={report.status} />
-          </div>
-          {report.submittedAt && (
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Сдан</span>
-              <span className={styles.metaValue}>{formatDateTime(report.submittedAt)}</span>
+            <div>
+              <StatusBadge status={report.status} />
             </div>
-          )}
+          </div>
+          <div>
+            <span className={styles.metaLabel}>Сдан</span>
+            <span className={styles.metaValue}>{report.submittedAt ? formatDateTime(report.submittedAt) : "—"}</span>
+          </div>
         </div>
         <CompletenessBar
           percent={report.progress.progressPercent}
-          completed={report.progress.completedItems}
-          total={report.progress.totalItems}
+          completed={completedSteps}
+          total={totalSteps}
+          unitLabel={`${completedSteps}/${totalSteps} Шагов`}
+          tone="primary"
         />
-      </Card>
+      </section>
 
-      <Card title="Этапы выполнения" subtitle="Разбейте подзадачу на шаги, чтобы отслеживать прогресс">
+      <section className={styles.stepsSection}>
+        <div className={styles.stepsHeader}>
+          <h2 className={styles.stepsTitle}>Этапы выполнения</h2>
+          <p className={styles.stepsSubtitle}>Разбейте подзадачу на шаги, чтобы отслеживать прогресс</p>
+        </div>
         <div className={styles.itemsList}>
           {items.map((item, index) => (
             <ReportItemCard
@@ -152,59 +168,100 @@ export default function ReportEditorPage() {
           ))}
         </div>
         {canEdit && <AddReportItemForm reportId={reportId} />}
-      </Card>
+      </section>
 
-      <Card title="Итоговое резюме отчёта">
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <Field label="Описание выполненных работ за квартал">
+      <section className={styles.summaryCard}>
+        <h2 className={styles.summaryTitle}>Резюме и статус отчёта</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label className={styles.fieldLabel} htmlFor="executive-summary">
+              Общее резюме (Executive Summary)
+            </label>
             <Textarea
+              id="executive-summary"
               value={content}
               onChange={(event) => setContent(event.target.value)}
               disabled={!canEdit}
               rows={5}
+              placeholder="Введите краткие итоги работы по данной подзадаче..."
             />
-          </Field>
-          <Field label="Статус">
-            <Select
-              value={status}
-              onChange={(event) => setStatus(event.target.value as ReportStatus)}
-              disabled={!canEdit}
-              style={{ maxWidth: 240 }}
-            >
-              <option value="not_started">Не начато</option>
-              <option value="in_progress">В работе</option>
-              <option value="completed">Выполнено полностью</option>
-            </Select>
-          </Field>
+            <p className={styles.fieldHint}>
+              Минимум {MIN_COMPLETED_CONTENT_LENGTH} символов для перевода в статус «Выполнено».
+            </p>
+          </div>
 
-          {formError && <ErrorAlert message={formError} />}
+          <div className={styles.statusSection} style={{ marginTop: 16 }}>
+            <span className={styles.fieldLabel} style={{ marginBottom: 12, display: "block" }}>
+              Итоговый статус отчёта
+            </span>
+            <div className={styles.statusOptions} role="radiogroup" aria-label="Итоговый статус отчёта">
+              {STATUS_OPTIONS.map((option) => {
+                const isCompleted = option.value === "completed";
+                const disabled = !canEdit || (isCompleted && !canMarkCompleted);
+                const isActive = status === option.value;
+                return (
+                  <label
+                    key={option.value}
+                    className={[
+                      styles.statusOption,
+                      isActive ? styles.statusOptionActive : "",
+                      disabled ? styles.statusOptionDisabled : "",
+                    ]
+                      .join(" ")
+                      .trim()}
+                  >
+                    <input
+                      type="radio"
+                      name="report_status"
+                      className={[styles.statusRadio, isCompleted ? styles.statusRadioSuccess : ""].join(" ").trim()}
+                      value={option.value}
+                      checked={isActive}
+                      disabled={disabled}
+                      onChange={() => setStatus(option.value)}
+                    />
+                    <span>
+                      {option.label}
+                      {isCompleted && option.hint && !canMarkCompleted ? ` (${option.hint})` : ""}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {formError && (
+            <div style={{ marginTop: 16 }}>
+              <ErrorAlert message={formError} />
+            </div>
+          )}
 
           {canEdit && (
             <div className={styles.formActions}>
-              <Button type="submit" variant="primary" loading={updateMutation.isPending}>
-                Сохранить
-              </Button>
-              <Button type="button" variant="outline" onClick={handleCancel}>
-                Отмена
-              </Button>
               {savedAt && (
                 <span className={styles.savedHint}>
-                  <CheckCircle2 size={14} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+                  <CheckCircle2 size={14} />
                   Сохранено
                 </span>
               )}
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Отмена
+              </Button>
+              <Button type="submit" variant="primary" loading={updateMutation.isPending}>
+                Сохранить изменения
+              </Button>
             </div>
           )}
         </form>
-      </Card>
+      </section>
 
-      <Card title="Вложения отчёта">
-        <AttachmentList reportId={reportId} itemId={null} attachments={report.attachments ?? []} canEdit={canEdit} />
-      </Card>
+      {(report.attachments?.length ?? 0) > 0 || canEdit ? (
+        <section className={styles.attachmentsCard}>
+          <h2 className={styles.attachmentsTitle}>Вложения отчёта</h2>
+          <AttachmentList reportId={reportId} itemId={null} attachments={report.attachments ?? []} canEdit={canEdit} />
+        </section>
+      ) : null}
 
-      <Card flat>
-        <RevisionHistory revisions={report.revisions ?? []} />
-      </Card>
+      <RevisionHistory revisions={report.revisions ?? []} />
     </div>
   );
 }

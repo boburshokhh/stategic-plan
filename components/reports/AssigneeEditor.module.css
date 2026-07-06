@@ -2,39 +2,86 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 8px 3px 10px;
+  gap: 4px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-secondary) 12%, #fff);
-  color: var(--color-secondary);
-  font-size: 0.75rem;
-  font-weight: 500;
+  background: color-mix(in srgb, var(--color-bg-page) 80%, #fff);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  color: var(--color-text-heading);
+  font-size: 0.8125rem;
 }
 
 .chipRemove {
   display: flex;
-  color: inherit;
-  opacity: 0.7;
+  margin-left: 2px;
+  color: var(--color-text-body);
 }
 
 .chipRemove:hover {
-  opacity: 1;
   color: var(--color-danger);
 }
 
-.addSelect {
-  border: 1px dashed var(--color-border);
+.addDept {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 50%, #fff);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.addDept:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, #fff);
+}
+
+.addDeptSelect {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 50%, #fff);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  appearance: none;
+}
+
+.addDeptSelect:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, #fff);
+}
+
+.addExternal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--color-border);
   background: transparent;
   color: var(--color-text-body);
-  font-size: 0.75rem;
-  padding: 3px 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.addExternal:hover {
+  background: color-mix(in srgb, var(--color-bg-page) 80%, #fff);
 }
 
 .externalForm {
@@ -46,7 +93,7 @@
 .externalInput {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
-  font-size: 0.75rem;
-  padding: 3px 8px;
-  width: 140px;
+  font-size: 0.8125rem;
+  padding: 6px 10px;
+  width: 180px;
 }

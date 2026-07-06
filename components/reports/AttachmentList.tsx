@@ -7,7 +7,6 @@ import { useRemoveAttachment, useUploadAttachment } from "../../lib/hooks/useRep
 import { ALLOWED_ATTACHMENT_EXTENSIONS, ALLOWED_ATTACHMENT_MIME_TYPES, MAX_ATTACHMENT_SIZE_BYTES } from "../../lib/api/attachment-constraints";
 import { formatBytes } from "../../lib/format";
 import type { ReportAttachment } from "../../lib/api/types";
-import { Button } from "../ui/Button";
 import styles from "./AttachmentList.module.css";
 
 function iconFor(mimeType: string) {
@@ -57,25 +56,29 @@ export function AttachmentList({ reportId, itemId, attachments, canEdit }: Attac
         const Icon = iconFor(attachment.mimeType);
         return (
           <div key={attachment.id} className={styles.item}>
-            <Icon size={16} className={styles.icon} />
-            <span
-              className={styles.name}
-              onClick={() => downloadAttachment(reportId, attachment.id, attachment.fileName)}
-              title="Скачать"
-            >
-              {attachment.fileName}
-            </span>
-            <span className={styles.size}>{formatBytes(attachment.sizeBytes)}</span>
-            {canEdit && (
-              <button
-                type="button"
-                className={styles.removeButton}
-                onClick={() => removeMutation.mutate(attachment.id)}
-                title="Удалить"
+            <div className={styles.itemLeft}>
+              <Icon size={18} className={styles.icon} />
+              <span
+                className={styles.name}
+                onClick={() => downloadAttachment(reportId, attachment.id, attachment.fileName)}
+                title="Скачать"
               >
-                <Trash2 size={14} />
-              </button>
-            )}
+                {attachment.fileName}
+              </span>
+            </div>
+            <div className={styles.itemRight}>
+              <span className={styles.size}>{formatBytes(attachment.sizeBytes)}</span>
+              {canEdit && (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => removeMutation.mutate(attachment.id)}
+                  title="Удалить"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
@@ -89,15 +92,15 @@ export function AttachmentList({ reportId, itemId, attachments, canEdit }: Attac
             style={{ display: "none" }}
             onChange={handleFileSelected}
           />
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="small"
-            loading={uploadMutation.isPending}
+            className={styles.uploadLink}
+            disabled={uploadMutation.isPending}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Paperclip size={13} /> Прикрепить файл
-          </Button>
+            <Paperclip size={18} />
+            {uploadMutation.isPending ? "Загрузка…" : "Прикрепить файл"}
+          </button>
         </div>
       )}
       {error && <span className={styles.error}>{error}</span>}

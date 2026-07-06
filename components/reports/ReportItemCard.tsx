@@ -15,6 +15,12 @@ const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string }> = [
   { value: "completed", label: "Выполнено" },
 ];
 
+function statusSelectClass(status: ReportStatus) {
+  if (status === "completed") return styles.statusSelectCompleted;
+  if (status === "in_progress") return styles.statusSelectInProgress;
+  return styles.statusSelectNotStarted;
+}
+
 interface ReportItemCardProps {
   reportId: string;
   item: ReportItem;
@@ -30,6 +36,8 @@ export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst,
   const removeMutation = useRemoveReportItem(reportId);
   const [title, setTitle] = useState(item.title);
   const [content, setContent] = useState(item.content);
+
+  const isInProgress = item.status === "in_progress";
 
   function saveTitle() {
     if (title.trim() && title !== item.title) {
@@ -56,34 +64,38 @@ export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst,
   }
 
   return (
-    <div className={styles.item}>
-      <div className={styles.headerRow}>
-        {canEdit && (
-          <div className={styles.orderControls}>
-            <button type="button" className={styles.orderButton} disabled={isFirst} onClick={() => onMove("up")}>
-              <ChevronUp size={14} />
-            </button>
-            <button type="button" className={styles.orderButton} disabled={isLast} onClick={() => onMove("down")}>
-              <ChevronDown size={14} />
-            </button>
-          </div>
-        )}
+    <article className={[styles.item, isInProgress ? styles.itemInProgress : ""].join(" ").trim()}>
+      {isInProgress && <div className={styles.itemAccent} aria-hidden />}
 
-        {canEdit ? (
-          <input
-            className={styles.titleInput}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            onBlur={saveTitle}
-          />
-        ) : (
-          <div className={styles.titleInput}>{item.title}</div>
-        )}
+      <div className={[styles.headerRow, isInProgress ? styles.headerRowAccent : ""].join(" ").trim()}>
+        <div className={styles.headerLeft}>
+          {canEdit && (
+            <div className={styles.orderControls}>
+              <button type="button" className={styles.orderButton} disabled={isFirst} onClick={() => onMove("up")} aria-label="Переместить вверх">
+                <ChevronUp size={16} />
+              </button>
+              <button type="button" className={styles.orderButton} disabled={isLast} onClick={() => onMove("down")} aria-label="Переместить вниз">
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          )}
+
+          {canEdit ? (
+            <input
+              className={styles.titleInput}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              onBlur={saveTitle}
+            />
+          ) : (
+            <div className={styles.titleReadonly}>{item.title}</div>
+          )}
+        </div>
 
         <div className={styles.headerActions}>
           {canEdit ? (
             <select
-              className={styles.statusSelect}
+              className={[styles.statusSelect, statusSelectClass(item.status)].join(" ")}
               value={item.status}
               onChange={(event) => handleStatusChange(event.target.value as ReportStatus)}
             >
@@ -94,43 +106,45 @@ export function ReportItemCard({ reportId, item, departmentId, canEdit, isFirst,
               ))}
             </select>
           ) : (
-            <span className={styles.statusSelect}>{STATUS_OPTIONS.find((o) => o.value === item.status)?.label}</span>
+            <span className={styles.statusReadonly}>{STATUS_OPTIONS.find((o) => o.value === item.status)?.label}</span>
           )}
           {canEdit && (
             <button type="button" className={styles.deleteButton} onClick={handleRemove} title="Удалить этап">
-              <Trash2 size={15} />
+              <Trash2 size={18} />
             </button>
           )}
         </div>
       </div>
 
-      {canEdit ? (
-        <Textarea
-          placeholder="Описание выполненных работ по этапу"
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          onBlur={saveContent}
-          rows={3}
-        />
-      ) : (
-        content && <p style={{ whiteSpace: "pre-wrap" }}>{content}</p>
-      )}
+      <div className={[styles.body, isInProgress ? styles.bodyAccent : ""].join(" ").trim()}>
+        {canEdit ? (
+          <Textarea
+            placeholder="Описание этапа..."
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            onBlur={saveContent}
+            rows={3}
+          />
+        ) : (
+          content && <p className={styles.contentReadonly}>{content}</p>
+        )}
 
-      <div>
-        <div className={styles.sectionLabel}>Исполнители</div>
-        <AssigneeEditor
-          reportId={reportId}
-          itemId={item.id}
-          assignees={item.assignees}
-          departmentId={departmentId}
-          canEdit={canEdit}
-        />
-      </div>
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>Исполнители</div>
+          <AssigneeEditor
+            reportId={reportId}
+            itemId={item.id}
+            assignees={item.assignees}
+            departmentId={departmentId}
+            canEdit={canEdit}
+          />
+        </div>
 
-      <div>
-        <div className={styles.sectionLabel}>Вложения</div>
-        <AttachmentList reportId={reportId} itemId={item.id} attachments={item.attachments} canEdit={canEdit} />
+        <div className={[styles.section, styles.sectionBordered].join(" ")}>
+          <div className={styles.sectionLabel}>Вложения</div>
+          <AttachmentList reportId={reportId} itemId={item.id} attachments={item.attachments} canEdit={canEdit} />
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
