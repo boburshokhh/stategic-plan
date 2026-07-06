@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, UserPlus, X } from "lucide-react";
+import { CircleX, UserRound, UserRoundPlus, Users } from "lucide-react";
 import { useDepartmentMembers } from "../../lib/hooks/useDepartments";
 import { useAssignItemMembers } from "../../lib/hooks/useReports";
 import type { ReportItemAssignee } from "../../lib/api/types";
+import { iconSize } from "../../lib/icons";
+import { IconButton } from "../ui/IconButton";
 import styles from "./AssigneeEditor.module.css";
 
 interface AssigneeEditorProps {
@@ -56,42 +58,55 @@ export function AssigneeEditor({ reportId, itemId, assignees, departmentId, canE
     <div className={styles.wrapper}>
       {assignees.map((assignee) => (
         <span key={assignee.id} className={styles.chip}>
-          {assignee.user?.fullName ?? assignee.externalName}
+          <span className={styles.chipAvatar} aria-hidden>
+            <UserRound {...iconSize("sm")} />
+          </span>
+          <span className={styles.chipName}>{assignee.user?.fullName ?? assignee.externalName}</span>
           {canEdit && (
-            <button type="button" className={styles.chipRemove} onClick={() => remove(assignee)} aria-label="Удалить">
-              <X size={14} />
-            </button>
+            <IconButton
+              variant="chip"
+              size="sm"
+              label="Удалить исполнителя"
+              className={styles.chipRemove}
+              onClick={() => remove(assignee)}
+            >
+              <CircleX {...iconSize("sm")} />
+            </IconButton>
           )}
         </span>
       ))}
 
       {canEdit && !isAddingExternal && availableMembers.length > 0 && (
-        <select className={styles.addDeptSelect} value="" onChange={(event) => addMember(event.target.value)}>
-          <option value="">Сотрудник отдела</option>
-          {availableMembers.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.fullName}
-            </option>
-          ))}
-        </select>
+        <label className={styles.addDeptSelectWrap}>
+          <Users {...iconSize("xs")} className={styles.addIcon} />
+          <select className={styles.addDeptSelect} value="" onChange={(event) => addMember(event.target.value)}>
+            <option value="">Сотрудник отдела</option>
+            {availableMembers.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.fullName}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
 
       {canEdit && !isAddingExternal && availableMembers.length === 0 && (
         <span className={styles.addDept}>
-          <Plus size={16} />
+          <Users {...iconSize("sm")} />
           Сотрудник отдела
         </span>
       )}
 
       {canEdit && !isAddingExternal && (
         <button type="button" className={styles.addExternal} onClick={() => setIsAddingExternal(true)}>
-          <UserPlus size={16} />
+          <UserRoundPlus {...iconSize("sm")} />
           Внешний участник
         </button>
       )}
 
       {canEdit && isAddingExternal && (
         <span className={styles.externalForm}>
+          <UserRoundPlus {...iconSize("sm")} className={styles.addIcon} />
           <input
             autoFocus
             className={styles.externalInput}
@@ -101,6 +116,9 @@ export function AssigneeEditor({ reportId, itemId, assignees, departmentId, canE
             onKeyDown={(event) => event.key === "Enter" && addExternal()}
             onBlur={addExternal}
           />
+          <IconButton variant="chip" size="sm" label="Отменить" onClick={() => setIsAddingExternal(false)}>
+            <CircleX {...iconSize("sm")} />
+          </IconButton>
         </span>
       )}
     </div>

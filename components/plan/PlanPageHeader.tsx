@@ -23,7 +23,7 @@ export function PlanPageHeader({ title, yearFrom, yearTo, description }: PlanPag
         <Link href="/reports/my">
           <Button variant="primary">
             <ClipboardList size={18} strokeWidth={1.75} />
-            Отчёты
+            Мои отчёты
           </Button>
         </Link>
       </div>

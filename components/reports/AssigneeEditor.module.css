@@ -8,23 +8,57 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 6px 8px 6px 6px;
   border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--color-bg-page) 80%, #fff);
   border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
   color: var(--color-text-heading);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.chipAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-primary) 12%, #fff);
+  color: var(--color-primary);
+}
+
+.chipName {
+  padding-right: 2px;
 }
 
 .chipRemove {
-  display: flex;
-  margin-left: 2px;
-  color: var(--color-text-body);
+  width: 28px;
+  height: 28px;
+  color: var(--color-secondary);
 }
 
-.chipRemove:hover {
-  color: var(--color-danger);
+.addIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.addDeptSelectWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 50%, #fff);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.addDeptSelectWrap:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, #fff);
 }
 
 .addDept {
@@ -47,23 +81,14 @@
 }
 
 .addDeptSelect {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  border: 1px dashed color-mix(in srgb, var(--color-primary) 50%, #fff);
+  border: none;
   background: transparent;
   color: var(--color-primary);
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
   appearance: none;
-}
-
-.addDeptSelect:hover {
-  background: color-mix(in srgb, var(--color-primary) 8%, #fff);
+  padding: 0;
 }
 
 .addExternal {

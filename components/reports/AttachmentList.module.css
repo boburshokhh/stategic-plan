@@ -24,9 +24,34 @@
   flex: 1;
 }
 
-.icon {
-  color: var(--color-danger);
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
   flex-shrink: 0;
+}
+
+.icon_pdf {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, #fff);
+}
+
+.icon_sheet {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, #fff);
+}
+
+.icon_image {
+  color: var(--color-info);
+  background: color-mix(in srgb, var(--color-info) 12%, #fff);
+}
+
+.icon_default {
+  color: var(--color-secondary);
+  background: color-mix(in srgb, var(--color-bg-page) 80%, #fff);
 }
 
 .name {
@@ -55,36 +80,35 @@
   font-weight: 600;
 }
 
-.removeButton {
-  color: var(--color-text-body);
-  display: flex;
-  padding: 4px;
-}
-
-.removeButton:hover {
-  color: var(--color-danger);
-}
-
 .uploadRow {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .uploadLink {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 45%, #fff);
   color: var(--color-primary);
   font-size: 0.8125rem;
   font-weight: 600;
-  background: none;
-  border: none;
-  padding: 4px 0;
+  background: color-mix(in srgb, var(--color-primary) 4%, #fff);
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.uploadLink:hover {
-  text-decoration: underline;
+.uploadLink:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 10%, #fff);
+  border-color: var(--color-primary);
+}
+
+.uploadLink:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .error {

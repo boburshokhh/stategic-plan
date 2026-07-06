@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ChevronRight, FilePenLine } from "lucide-react";
 import type { QuarterlyReport } from "../../lib/api/types";
 import { formatQuarterYear } from "../../lib/format";
+import { iconSize } from "../../lib/icons";
 import { StatusBadge } from "../ui/StatusBadge";
 import { CompletenessBar } from "../ui/CompletenessBar";
 import tableStyles from "../ui/Table.module.css";
+import styles from "./MyReportsTable.module.css";
 
 const STATUS_ORDER: Record<QuarterlyReport["status"], number> = {
   not_started: 0,
@@ -33,8 +35,10 @@ export function MyReportsTable({ reports }: { reports: QuarterlyReport[] }) {
           <tr key={report.id}>
             <td>
               <div className={tableStyles.primaryCell}>{report.subtask?.title}</div>
-              <div className={tableStyles.secondaryLine}>
-                {report.subtask?.task?.direction?.name} → {report.subtask?.task?.title}
+              <div className={[tableStyles.secondaryLine, styles.breadcrumb].join(" ")}>
+                {report.subtask?.task?.direction?.name}
+                <ChevronRight {...iconSize("xs")} className={styles.breadcrumbSep} />
+                {report.subtask?.task?.title}
               </div>
             </td>
             <td>
@@ -53,11 +57,10 @@ export function MyReportsTable({ reports }: { reports: QuarterlyReport[] }) {
               <StatusBadge status={report.status} />
             </td>
             <td>
-              <Link
-                href={`/reports/${report.id}`}
-                style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--color-primary)", fontWeight: 500 }}
-              >
-                Открыть <ArrowUpRight size={14} />
+              <Link href={`/reports/${report.id}`} className={styles.openLink}>
+                <FilePenLine {...iconSize("sm")} className={styles.openIcon} />
+                Открыть
+                <ArrowRight {...iconSize("xs")} className={styles.openIcon} />
               </Link>
             </td>
           </tr>

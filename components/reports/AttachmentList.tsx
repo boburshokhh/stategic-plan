@@ -1,19 +1,32 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { FileText, FileSpreadsheet, Image as ImageIcon, File as FileIcon, Paperclip, Trash2 } from "lucide-react";
+import {
+  Download,
+  File,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  Loader2,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { downloadAttachment } from "../../lib/api/client";
 import { useRemoveAttachment, useUploadAttachment } from "../../lib/hooks/useReports";
 import { ALLOWED_ATTACHMENT_EXTENSIONS, ALLOWED_ATTACHMENT_MIME_TYPES, MAX_ATTACHMENT_SIZE_BYTES } from "../../lib/api/attachment-constraints";
 import { formatBytes } from "../../lib/format";
+import { normalizeFileName } from "../../lib/files/normalizeFileName";
+import { iconSize } from "../../lib/icons";
 import type { ReportAttachment } from "../../lib/api/types";
+import { IconButton } from "../ui/IconButton";
 import styles from "./AttachmentList.module.css";
 
-function iconFor(mimeType: string) {
-  if (mimeType.startsWith("image/")) return ImageIcon;
-  if (mimeType.includes("sheet") || mimeType.includes("excel")) return FileSpreadsheet;
-  if (mimeType.includes("pdf") || mimeType.includes("word")) return FileText;
-  return FileIcon;
+function iconFor(mimeType: string): { Icon: LucideIcon; tone: "pdf" | "sheet" | "image" | "default" } {
+  if (mimeType.startsWith("image/")) return { Icon: FileImage, tone: "image" };
+  if (mimeType.includes("sheet") || mimeType.includes("excel")) return { Icon: FileSpreadsheet, tone: "sheet" };
+  if (mimeType.includes("pdf") || mimeType.includes("word")) return { Icon: FileText, tone: "pdf" };
+  return { Icon: File, tone: "default" };
 }
 
 interface AttachmentListProps {
@@ -53,30 +66,41 @@ export function AttachmentList({ reportId, itemId, attachments, canEdit }: Attac
   return (
     <div className={styles.list}>
       {attachments.map((attachment) => {
-        const Icon = iconFor(attachment.mimeType);
+        const { Icon, tone } = iconFor(attachment.mimeType);
+        const displayName = normalizeFileName(attachment.fileName);
         return (
           <div key={attachment.id} className={styles.item}>
             <div className={styles.itemLeft}>
-              <Icon size={18} className={styles.icon} />
+              <span className={[styles.iconWrap, styles[`icon_${tone}`]].join(" ")}>
+                <Icon {...iconSize("sm")} />
+              </span>
               <span
                 className={styles.name}
-                onClick={() => downloadAttachment(reportId, attachment.id, attachment.fileName)}
+                onClick={() => downloadAttachment(reportId, attachment.id, displayName)}
                 title="Скачать"
               >
-                {attachment.fileName}
+                {displayName}
               </span>
             </div>
             <div className={styles.itemRight}>
               <span className={styles.size}>{formatBytes(attachment.sizeBytes)}</span>
+              <IconButton
+                variant="primary"
+                size="xs"
+                label="Скачать файл"
+                onClick={() => downloadAttachment(reportId, attachment.id, displayName)}
+              >
+                <Download {...iconSize("xs")} />
+              </IconButton>
               {canEdit && (
-                <button
-                  type="button"
-                  className={styles.removeButton}
+                <IconButton
+                  variant="danger"
+                  size="xs"
+                  label="Удалить файл"
                   onClick={() => removeMutation.mutate(attachment.id)}
-                  title="Удалить"
                 >
-                  <Trash2 size={18} />
-                </button>
+                  <Trash2 {...iconSize("xs")} />
+                </IconButton>
               )}
             </div>
           </div>
@@ -98,7 +122,11 @@ export function AttachmentList({ reportId, itemId, attachments, canEdit }: Attac
             disabled={uploadMutation.isPending}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Paperclip size={18} />
+            {uploadMutation.isPending ? (
+              <Loader2 {...iconSize("sm")} className="spin" />
+            ) : (
+              <Upload {...iconSize("sm")} />
+            )}
             {uploadMutation.isPending ? "Загрузка…" : "Прикрепить файл"}
           </button>
         </div>

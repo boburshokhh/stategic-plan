@@ -18,7 +18,7 @@ import type {
 } from "./types";
 
 export const authApi = {
-  login: (email: string, password: string) => api.post<LoginResponse>("/auth/login", { email, password }),
+  login: (username: string, password: string) => api.post<LoginResponse>("/auth/login", { username, password }),
   me: () => api.get<AuthUser>("/auth/me"),
 };
 
@@ -53,6 +53,7 @@ export const reportsApi = {
   uploadAttachment: async (reportId: string, itemId: string | null, file: File) => {
     const form = new FormData();
     form.append("file", file);
+    form.append("fileName", file.name);
     const path = itemId ? `/reports/${reportId}/items/${itemId}/attachments` : `/reports/${reportId}/attachments`;
     return api.post(path, form);
   },

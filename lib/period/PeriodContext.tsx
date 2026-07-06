@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { periodsApi } from "../api/endpoints";
 import type { ReportingPeriod, ReportPhase } from "../api/types";
@@ -39,12 +39,12 @@ export function PeriodProvider({ children }: { children: React.ReactNode }) {
     queryFn: () => periodsApi.findAll(year),
   });
 
-  // Однократно подставляем текущий отчётный период с сервера как выбранный по умолчанию.
-  if (!didInitFromCurrent && currentPeriodQuery.data) {
+  useEffect(() => {
+    if (didInitFromCurrent || !currentPeriodQuery.data) return;
     setDidInitFromCurrent(true);
     setYear(currentPeriodQuery.data.year);
     setQuarter(currentPeriodQuery.data.quarter);
-  }
+  }, [didInitFromCurrent, currentPeriodQuery.data]);
 
   const periods = useMemo(() => periodsQuery.data ?? [], [periodsQuery.data]);
   const selectedPeriod = useMemo(

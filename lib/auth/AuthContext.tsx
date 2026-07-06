@@ -8,7 +8,7 @@ import type { AuthUser } from "../api/types";
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -16,10 +16,14 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(() => Boolean(getToken()));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!getToken()) return;
+    const token = getToken();
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
 
     authApi
       .me()
@@ -32,11 +36,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const response = await authApi.login(email, password);
+  const login = useCallback(async (username: string, password: string) => {
+    setIsLoading(true);
+    const response = await authApi.login(username, password);
     setToken(response.accessToken);
     const me = await authApi.me();
     setUser(me);
+    setIsLoading(false);
   }, []);
 
   const logout = useCallback(() => {

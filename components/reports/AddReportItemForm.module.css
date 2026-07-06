@@ -32,6 +32,24 @@
   gap: 12px;
 }
 
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formHeaderIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.formHeaderTitle {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
 .input {
   width: 100%;
 }

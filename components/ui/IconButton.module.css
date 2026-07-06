@@ -1,0 +1,64 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-control);
+  color: var(--color-text-body);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.xs {
+  width: 24px;
+  height: 24px;
+}
+
+.sm {
+  width: 28px;
+  height: 28px;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+}
+
+.ghost:hover:not(:disabled) {
+  color: var(--color-text-heading);
+  background: color-mix(in srgb, var(--color-bg-page) 70%, #fff);
+}
+
+.muted:hover:not(:disabled) {
+  color: var(--color-text-heading);
+  background: color-mix(in srgb, var(--color-border) 40%, #fff);
+}
+
+.primary:hover:not(:disabled) {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, #fff);
+}
+
+.danger:hover:not(:disabled) {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, #fff);
+}
+
+.chip {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  color: var(--color-secondary);
+}
+
+.chip:hover:not(:disabled) {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, #fff);
+}

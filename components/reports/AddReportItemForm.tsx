@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { PlusCircle } from "lucide-react";
+import { ListPlus, X } from "lucide-react";
 import { useCreateReportItem } from "../../lib/hooks/useReports";
+import { iconSize } from "../../lib/icons";
 import { Input } from "../ui/FormField";
 import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 import styles from "./AddReportItemForm.module.css";
 
 export function AddReportItemForm({ reportId }: { reportId: string }) {
@@ -30,7 +32,7 @@ export function AddReportItemForm({ reportId }: { reportId: string }) {
   if (!isOpen) {
     return (
       <button type="button" className={styles.addButton} onClick={() => setIsOpen(true)}>
-        <PlusCircle size={20} />
+        <ListPlus {...iconSize("lg")} />
         Добавить шаг
       </button>
     );
@@ -38,6 +40,13 @@ export function AddReportItemForm({ reportId }: { reportId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.formHeader}>
+        <ListPlus {...iconSize("sm")} className={styles.formHeaderIcon} />
+        <span className={styles.formHeaderTitle}>Новый этап</span>
+        <IconButton variant="ghost" size="xs" label="Закрыть" onClick={() => { setIsOpen(false); setTitle(""); }}>
+          <X {...iconSize("xs")} />
+        </IconButton>
+      </div>
       <Input
         placeholder="Название нового этапа"
         value={title}

@@ -1,10 +1,46 @@
-import type { QuarterlyReport, ReportStatus, StrategicPlanTree, Subtask } from "../api/types";
+import type { QuarterlyReport, StrategicPlanTree, Subtask, SubtaskDepartmentRole } from "../api/types";
 
 export type QuarterDotStatus = "completed" | "in_progress" | "not_started" | "empty";
+
+export interface EnrollmentBreakdown {
+  participantIds: Set<string>;
+  ownerIds: Set<string>;
+  allIds: Set<string>;
+}
 
 export function formatSubtaskCode(taskNumber: number | null, sortOrder: number): string {
   if (taskNumber == null) return String(sortOrder);
   return `${taskNumber}.${sortOrder}`;
+}
+
+function getDepartmentRole(subtask: Subtask, departmentId: string): SubtaskDepartmentRole | null {
+  return subtask.departments?.find((assignment) => assignment.departmentId === departmentId)?.role ?? null;
+}
+
+export function getEnrollmentBreakdown(
+  plan: StrategicPlanTree,
+  year: number,
+  departmentId: string | null | undefined,
+): EnrollmentBreakdown {
+  const participantIds = new Set<string>();
+  const ownerIds = new Set<string>();
+
+  if (!departmentId) {
+    return { participantIds, ownerIds, allIds: new Set() };
+  }
+
+  for (const direction of plan.directions) {
+    for (const task of direction.tasks) {
+      for (const subtask of task.subtasks) {
+        if (subtask.year !== year) continue;
+        const role = getDepartmentRole(subtask, departmentId);
+        if (role === "participant") participantIds.add(subtask.id);
+        if (role === "owner") ownerIds.add(subtask.id);
+      }
+    }
+  }
+
+  return { participantIds, ownerIds, allIds: new Set([...participantIds, ...ownerIds]) };
 }
 
 export function getEnrolledSubtaskIds(
@@ -12,20 +48,7 @@ export function getEnrolledSubtaskIds(
   year: number,
   departmentId: string | null | undefined,
 ): Set<string> {
-  if (!departmentId) return new Set();
-
-  const ids = new Set<string>();
-  for (const direction of plan.directions) {
-    for (const task of direction.tasks) {
-      for (const subtask of task.subtasks) {
-        if (subtask.year !== year) continue;
-        if (subtask.departments?.some((assignment) => assignment.departmentId === departmentId)) {
-          ids.add(subtask.id);
-        }
-      }
-    }
-  }
-  return ids;
+  return getEnrollmentBreakdown(plan, year, departmentId).allIds;
 }
 
 export function buildMyReportsMap(reports: QuarterlyReport[]): Map<string, QuarterlyReport> {
@@ -36,75 +59,48 @@ export function buildMyReportsMap(reports: QuarterlyReport[]): Map<string, Quart
   return map;
 }
 
-export function getSubtaskProgressPercent(
-  subtaskId: string,
-  enrolledSubtaskIds: Set<string>,
-  myReportsBySubtaskId: Map<string, QuarterlyReport>,
-): number {
-  if (!enrolledSubtaskIds.has(subtaskId)) return 0;
-  return myReportsBySubtaskId.get(subtaskId)?.progress.progressPercent ?? 0;
-}
+function formatParticipationLabel(
+  participantCount: number,
+  ownerCount: number,
+  totalCount: number,
+): string {
+  const enrolledCount = participantCount + ownerCount;
+  if (enrolledCount === 0) return "НЕ УЧАСТВУЕМ";
 
-function averageProgress(
-  subtaskIds: string[],
-  enrolledSubtaskIds: Set<string>,
-  myReportsBySubtaskId: Map<string, QuarterlyReport>,
-): number {
-  const enrolled = subtaskIds.filter((id) => enrolledSubtaskIds.has(id));
-  if (enrolled.length === 0) return 0;
-
-  const sum = enrolled.reduce(
-    (acc, subtaskId) => acc + getSubtaskProgressPercent(subtaskId, enrolledSubtaskIds, myReportsBySubtaskId),
-    0,
-  );
-  return Math.round(sum / enrolled.length);
-}
-
-function formatProgressLabel(percent: number, enrolledCount: number): string {
-  if (enrolledCount === 0) return "НЕ ВЫБРАНО";
-  if (percent >= 100) return "ЗАВЕРШЕНО";
-  if (percent === 0) return "0% ВЫПОЛНЕНО";
-  return `${percent}% ВЫПОЛНЕНО`;
-}
-
-export function getQuarterStatuses(
-  reports: QuarterlyReport[],
-  year: number,
-  departmentId?: string | null,
-): QuarterDotStatus[] {
-  const scopedReports = departmentId
-    ? reports.filter((report) => report.departmentId === departmentId)
-    : reports;
-
-  return [1, 2, 3, 4].map((quarter) => {
-    const quarterReports = scopedReports.filter(
-      (report) => report.reportingPeriod?.year === year && report.reportingPeriod?.quarter === quarter,
-    );
-    if (quarterReports.length === 0) return "empty";
-
-    const completed = quarterReports.filter((report) => report.status === "completed").length;
-    const hasProgress = quarterReports.some((report) => report.status === "in_progress");
-
-    if (completed === quarterReports.length) return "completed";
-    if (hasProgress || completed > 0) return "in_progress";
-    return "not_started";
-  });
-}
-
-export function aggregateSubtaskStatus(reports: QuarterlyReport[]): ReportStatus {
-  if (reports.length === 0) return "not_started";
-  if (reports.every((report) => report.status === "completed")) return "completed";
-  if (reports.some((report) => report.status === "in_progress" || report.status === "completed")) {
-    return "in_progress";
+  const parts: string[] = [];
+  if (participantCount > 0) {
+    parts.push(`${participantCount} ${participantCount === 1 ? "ВЫБРАНА" : "ВЫБРАНО"}`);
   }
-  return "not_started";
+  if (ownerCount > 0) {
+    parts.push(`${ownerCount} ${ownerCount === 1 ? "НАЗНАЧЕНА" : "НАЗНАЧЕНО"}`);
+  }
+
+  const summary = parts.join(" • ");
+  if (enrolledCount === totalCount) return summary;
+  return `${summary} ИЗ ${totalCount}`;
+}
+
+function countRolesInSubtasks(subtasks: Subtask[], departmentId: string | null | undefined) {
+  let participantCount = 0;
+  let ownerCount = 0;
+
+  if (!departmentId) {
+    return { participantCount, ownerCount };
+  }
+
+  for (const subtask of subtasks) {
+    const role = getDepartmentRole(subtask, departmentId);
+    if (role === "participant") participantCount += 1;
+    if (role === "owner") ownerCount += 1;
+  }
+
+  return { participantCount, ownerCount };
 }
 
 export function computeDirectionStats(
   direction: StrategicPlanTree["directions"][number],
   year: number,
-  enrolledSubtaskIds: Set<string>,
-  myReportsBySubtaskId: Map<string, QuarterlyReport>,
+  departmentId: string | null | undefined,
 ) {
   const tasksWithSubtasks = direction.tasks
     .map((task) => ({
@@ -114,69 +110,45 @@ export function computeDirectionStats(
     .filter((entry) => entry.subtasks.length > 0);
 
   const subtasks = tasksWithSubtasks.flatMap((entry) => entry.subtasks);
-  const enrolledInDirection = subtasks.filter((subtask) => enrolledSubtaskIds.has(subtask.id));
-  const completionPercent = averageProgress(
-    subtasks.map((subtask) => subtask.id),
-    enrolledSubtaskIds,
-    myReportsBySubtaskId,
-  );
+  const { participantCount, ownerCount } = countRolesInSubtasks(subtasks, departmentId);
 
   return {
     taskCount: tasksWithSubtasks.length,
     totalSubtasks: subtasks.length,
-    enrolledCount: enrolledInDirection.length,
-    completionPercent,
-    label: formatProgressLabel(completionPercent, enrolledInDirection.length),
+    enrolledCount: participantCount + ownerCount,
+    participantCount,
+    ownerCount,
+    label: formatParticipationLabel(participantCount, ownerCount, subtasks.length),
   };
 }
 
-export function computeTaskStats(
-  subtasks: Subtask[],
-  enrolledSubtaskIds: Set<string>,
-  myReportsBySubtaskId: Map<string, QuarterlyReport>,
-) {
-  const enrolled = subtasks.filter((subtask) => enrolledSubtaskIds.has(subtask.id));
-  const completionPercent = averageProgress(
-    subtasks.map((subtask) => subtask.id),
-    enrolledSubtaskIds,
-    myReportsBySubtaskId,
-  );
+export function computeTaskStats(subtasks: Subtask[], departmentId: string | null | undefined) {
+  const { participantCount, ownerCount } = countRolesInSubtasks(subtasks, departmentId);
 
   return {
     subtaskCount: subtasks.length,
-    enrolledCount: enrolled.length,
-    completionPercent,
-    label: formatProgressLabel(completionPercent, enrolled.length),
+    enrolledCount: participantCount + ownerCount,
+    participantCount,
+    ownerCount,
+    label: formatParticipationLabel(participantCount, ownerCount, subtasks.length),
   };
 }
 
 export function computePlanSummary(
   plan: StrategicPlanTree,
   year: number,
-  enrolledSubtaskIds: Set<string>,
-  myReportsBySubtaskId: Map<string, QuarterlyReport>,
+  departmentId: string | null | undefined,
 ) {
   const subtasks = plan.directions.flatMap((direction) =>
     direction.tasks.flatMap((task) => task.subtasks.filter((subtask) => subtask.year === year)),
   );
 
-  const enrolled = subtasks.filter((subtask) => enrolledSubtaskIds.has(subtask.id));
-  const overallPercent = averageProgress(
-    subtasks.map((subtask) => subtask.id),
-    enrolledSubtaskIds,
-    myReportsBySubtaskId,
-  );
-
-  let delayedCount = 0;
-  for (const subtask of enrolled) {
-    const report = myReportsBySubtaskId.get(subtask.id);
-    if (!report || report.status === "not_started") delayedCount += 1;
-  }
+  const { participantCount, ownerCount } = countRolesInSubtasks(subtasks, departmentId);
 
   return {
-    totalSubtasks: enrolled.length,
-    overallPercent,
-    delayedCount,
+    participantCount,
+    ownerCount,
+    totalSubtasks: participantCount + ownerCount,
     directionCount: plan.directions.length,
   };
 }

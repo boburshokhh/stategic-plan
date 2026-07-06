@@ -12,8 +12,8 @@ import styles from "./page.module.css";
 export default function LoginPage() {
   const router = useRouter();
   const { user, isLoading, login } = useAuth();
-  const [email, setEmail] = useState("otv@atg.local");
-  const [password, setPassword] = useState("password123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,7 +28,7 @@ export default function LoginPage() {
     setError(null);
     setIsSubmitting(true);
     try {
-      await login(email, password);
+      await login(username, password);
       router.replace("/dashboard");
     } catch (submitError) {
       setError(submitError instanceof ApiError ? submitError.message : "Не удалось выполнить вход");
@@ -46,12 +46,12 @@ export default function LoginPage() {
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <Field label="Email">
+          <Field label="Логин">
             <Input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="email"
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
               required
             />
           </Field>
@@ -71,10 +71,6 @@ export default function LoginPage() {
             Войти
           </Button>
         </form>
-
-        <div className={styles.hintBox}>
-          Демо-доступ отдела: <strong>otv@atg.local</strong> / <strong>password123</strong>
-        </div>
       </div>
     </div>
   );

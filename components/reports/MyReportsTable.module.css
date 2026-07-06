@@ -1,0 +1,31 @@
+.openLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.openLink:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, #fff);
+}
+
+.openIcon {
+  flex-shrink: 0;
+}
+
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.breadcrumbSep {
+  color: var(--color-secondary);
+  flex-shrink: 0;
+}

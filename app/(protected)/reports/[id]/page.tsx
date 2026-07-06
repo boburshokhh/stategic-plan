@@ -8,6 +8,9 @@ import { useCanEditReport } from "../../../../lib/hooks/useCanEditReport";
 import {
   MIN_COMPLETED_CONTENT_LENGTH,
   MIN_REPORT_ITEMS,
+  canMarkReportCompleted,
+  completedStatusHint,
+  countIncompleteSteps,
   stepsRequirementMessage,
 } from "../../../../lib/reports/reportConstraints";
 import { StatusBadge } from "../../../../components/ui/StatusBadge";
@@ -32,10 +35,10 @@ const STATUS_LABELS: Record<ReportStatus, string> = {
   completed: "Выполнено",
 };
 
-const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string; hint?: string }> = [
+const STATUS_OPTIONS: Array<{ value: ReportStatus; label: string }> = [
   { value: "not_started", label: "Не начато" },
   { value: "in_progress", label: "В работе" },
-  { value: "completed", label: "Выполнено", hint: "требуется резюме" },
+  { value: "completed", label: "Выполнено" },
 ];
 
 export default function ReportEditorPage() {
@@ -70,7 +73,10 @@ export default function ReportEditorPage() {
   const items = [...(report?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
   const stepsCount = items.length;
   const stepsMet = stepsCount >= MIN_REPORT_ITEMS;
-  const canMarkCompleted = stepsMet && content.trim().length >= MIN_COMPLETED_CONTENT_LENGTH;
+  const incompleteStepsCount = countIncompleteSteps(items);
+  const contentLength = content.trim().length;
+  const canMarkCompleted = canMarkReportCompleted(items, contentLength);
+  const completedHint = completedStatusHint(stepsMet, contentLength, incompleteStepsCount);
 
   function handleMove(itemId: string, direction: "up" | "down") {
     const index = items.findIndex((item) => item.id === itemId);
@@ -94,10 +100,14 @@ export default function ReportEditorPage() {
     }
 
     if (status === "completed" && !canMarkCompleted) {
-      const message =
-        content.trim().length < MIN_COMPLETED_CONTENT_LENGTH
-          ? `Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`
-          : `Для статуса «Выполнено» необходимо добавить минимум ${MIN_REPORT_ITEMS} шага реализации`;
+      let message: string;
+      if (!stepsMet) {
+        message = `Для статуса «Выполнено» необходимо добавить минимум ${MIN_REPORT_ITEMS} шага реализации`;
+      } else if (incompleteStepsCount > 0) {
+        message = `Для статуса «Выполнено» все шаги должны быть выполнены. Не завершено: ${incompleteStepsCount} из ${stepsCount}`;
+      } else {
+        message = `Для статуса «Выполнено» описание должно содержать не менее ${MIN_COMPLETED_CONTENT_LENGTH} символов`;
+      }
       notify({ variant: "error", title: "Не удалось сохранить", message });
       return;
     }
@@ -154,6 +164,16 @@ export default function ReportEditorPage() {
           variant={stepsMet ? "success" : "warning"}
           message={stepsRequirementMessage(stepsCount)}
         />
+        {stepsMet && status !== "completed" && !canMarkCompleted && (
+          <ErrorAlert
+            variant="info"
+            message={
+              incompleteStepsCount > 0
+                ? `Для сдачи отчёта отметьте все шаги как «Выполнено». Не завершено: ${incompleteStepsCount} из ${stepsCount}.`
+                : "Все шаги выполнены. Заполните резюме (минимум 10 символов) и выберите статус «Выполнено» для сдачи отчёта."
+            }
+          />
+        )}
         <div className={styles.metaGrid}>
           <div>
             <span className={styles.metaLabel}>Отдел</span>
@@ -226,7 +246,7 @@ export default function ReportEditorPage() {
               placeholder="Введите краткие итоги работы по данной подзадаче..."
             />
             <p className={styles.fieldHint}>
-              Минимум {MIN_COMPLETED_CONTENT_LENGTH} символов для статуса «Выполнено».
+              Минимум {MIN_COMPLETED_CONTENT_LENGTH} символов и все шаги со статусом «Выполнено».
               {!stepsMet && ` Также требуется не менее ${MIN_REPORT_ITEMS} шагов реализации.`}
             </p>
           </div>
@@ -262,7 +282,7 @@ export default function ReportEditorPage() {
                     />
                     <span>
                       {option.label}
-                      {isCompleted && option.hint && !canMarkCompleted ? ` (${option.hint})` : ""}
+                      {isCompleted && completedHint && !canMarkCompleted ? ` (${completedHint})` : ""}
                     </span>
                   </label>
                 );

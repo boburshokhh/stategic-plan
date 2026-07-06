@@ -115,7 +115,7 @@
   white-space: nowrap;
 }
 
-.userDept {
+.userRole {
   font-size: 0.75rem;
   color: var(--color-text-body);
   overflow: hidden;

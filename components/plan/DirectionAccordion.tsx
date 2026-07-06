@@ -15,9 +15,14 @@ interface DirectionAccordionProps {
   year: number;
   defaultOpen?: boolean;
   enrolledSubtaskIds: Set<string>;
+  departmentId?: string | null;
+  canParticipate: boolean;
   myReportsBySubtaskId: Map<string, QuarterlyReport>;
   periodId?: string;
-  canEditReports: boolean;
+  participatingId?: string | null;
+  onParticipate?: (subtaskId: string) => Promise<void>;
+  onUnenroll?: (subtaskId: string) => void;
+  unenrollingId?: string | null;
   onReportEnsured: () => void;
 }
 
@@ -26,15 +31,20 @@ export function DirectionAccordion({
   year,
   defaultOpen,
   enrolledSubtaskIds,
+  departmentId,
+  canParticipate,
   myReportsBySubtaskId,
   periodId,
-  canEditReports,
+  participatingId,
+  onParticipate,
+  onUnenroll,
+  unenrollingId,
   onReportEnsured,
 }: DirectionAccordionProps) {
   const [isOpen, setIsOpen] = useState(Boolean(defaultOpen));
   const theme = direction.yearThemes.find((item) => item.year === year)?.themeTitle;
   const visual = getDirectionVisual(direction.code);
-  const stats = computeDirectionStats(direction, year, enrolledSubtaskIds, myReportsBySubtaskId);
+  const stats = computeDirectionStats(direction, year, departmentId);
   const Icon = visual.icon;
 
   const tasksForYear = direction.tasks
@@ -74,9 +84,14 @@ export function DirectionAccordion({
                 subtasks={subtasks}
                 defaultOpen={index === 0}
                 enrolledSubtaskIds={enrolledSubtaskIds}
+                departmentId={departmentId}
+                canParticipate={canParticipate}
                 myReportsBySubtaskId={myReportsBySubtaskId}
                 periodId={periodId}
-                canEditReports={canEditReports}
+                participatingId={participatingId}
+                onParticipate={onParticipate}
+                onUnenroll={onUnenroll}
+                unenrollingId={unenrollingId}
                 onReportEnsured={onReportEnsured}
               />
             ))}

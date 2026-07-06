@@ -8,11 +8,29 @@ import { usePeriod } from "../../lib/period/PeriodContext";
 import { useMyReports } from "../../lib/hooks/useReports";
 import { useMobileNav } from "../../lib/layout/MobileNavContext";
 import { Badge } from "../ui/Badge";
+import type { AuthUser, UserRole } from "../../lib/api/types";
 import styles from "./Sidebar.module.css";
 
 function getInitials(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
   return parts.slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
+}
+
+function formatUserRole(role: UserRole): string {
+  switch (role) {
+    case "admin":
+      return "Администратор";
+    case "direction_head":
+      return "Руководитель направления";
+    case "dept_user":
+      return "Сотрудник отдела";
+    default:
+      return "—";
+  }
+}
+
+function formatDepartmentName(user: AuthUser) {
+  return user.department?.shortName ?? user.department?.name ?? "Отдел не назначен";
 }
 
 export function Sidebar() {
@@ -38,8 +56,8 @@ export function Sidebar() {
   return (
     <aside className={[styles.sidebar, isOpen ? styles.sidebarOpen : ""].join(" ")}>
       <div className={styles.brand}>
-        <span className={styles.brandTitle}>Стратегический план</span>
-        <span className={styles.brandSubtitle}>Asia Trans Gas · 2026–2028</span>
+        <span className={styles.brandTitle}>{user ? formatDepartmentName(user) : "—"}</span>
+        <span className={styles.brandSubtitle}>Стратегический план · Asia Trans Gas</span>
       </div>
 
       <nav className={styles.nav}>
@@ -66,7 +84,7 @@ export function Sidebar() {
           <div className={styles.avatar}>{getInitials(user.fullName)}</div>
           <div className={styles.userInfo}>
             <div className={styles.userName}>{user.fullName}</div>
-            <div className={styles.userDept}>{user.department?.shortName ?? user.department?.name ?? "—"}</div>
+            <div className={styles.userRole}>{formatUserRole(user.role)}</div>
           </div>
           <button className={styles.logoutButton} onClick={logout} title="Выйти" type="button">
             <LogOut size={16} />

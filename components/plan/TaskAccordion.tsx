@@ -12,9 +12,14 @@ interface TaskAccordionProps {
   subtasks: Subtask[];
   defaultOpen?: boolean;
   enrolledSubtaskIds: Set<string>;
+  departmentId?: string | null;
+  canParticipate: boolean;
   myReportsBySubtaskId: Map<string, QuarterlyReport>;
   periodId?: string;
-  canEditReports: boolean;
+  participatingId?: string | null;
+  onParticipate?: (subtaskId: string) => Promise<void>;
+  onUnenroll?: (subtaskId: string) => void;
+  unenrollingId?: string | null;
   onReportEnsured: () => void;
 }
 
@@ -23,17 +28,20 @@ export function TaskAccordion({
   subtasks,
   defaultOpen,
   enrolledSubtaskIds,
+  departmentId,
+  canParticipate,
   myReportsBySubtaskId,
   periodId,
-  canEditReports,
+  participatingId,
+  onParticipate,
+  onUnenroll,
+  unenrollingId,
   onReportEnsured,
 }: TaskAccordionProps) {
   const [isOpen, setIsOpen] = useState(Boolean(defaultOpen));
+  const stats = computeTaskStats(subtasks, departmentId);
 
-  const assignedSubtasks = subtasks.filter((subtask) => enrolledSubtaskIds.has(subtask.id));
-  const stats = computeTaskStats(assignedSubtasks, enrolledSubtaskIds, myReportsBySubtaskId);
-
-  if (assignedSubtasks.length === 0) return null;
+  if (subtasks.length === 0) return null;
 
   return (
     <div className={[styles.task, isOpen ? styles.taskOpen : ""].join(" ")}>
@@ -54,14 +62,19 @@ export function TaskAccordion({
       {isOpen && (
         <div className={styles.body}>
           <div className={styles.subtaskList}>
-            {assignedSubtasks.map((subtask) => (
+            {subtasks.map((subtask) => (
               <SubtaskRow
                 key={subtask.id}
                 subtask={subtask}
                 taskNumber={task.number}
+                departmentId={departmentId}
+                canParticipate={canParticipate}
                 myReport={myReportsBySubtaskId.get(subtask.id)}
                 periodId={periodId}
-                canEditReports={canEditReports}
+                onParticipate={onParticipate}
+                participating={participatingId === subtask.id}
+                onUnenroll={onUnenroll}
+                unenrolling={unenrollingId === subtask.id}
                 onReportEnsured={onReportEnsured}
               />
             ))}

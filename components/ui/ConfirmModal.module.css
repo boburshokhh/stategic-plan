@@ -1,0 +1,71 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(38, 43, 67, 0.45);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: color-mix(in srgb, var(--color-primary) 6%, #fff);
+  color: var(--color-text-heading);
+}
+
+.description {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--color-text-body);
+  margin-bottom: 20px;
+}
+
+.subtaskTitle {
+  margin-top: 8px;
+  font-weight: 500;
+  color: var(--color-text-heading);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

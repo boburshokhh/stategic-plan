@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import type { ReportItem, ReportStatus } from "../../lib/api/types";
+import { iconSize } from "../../lib/icons";
 import { useRemoveReportItem, useUpdateReportItem } from "../../lib/hooks/useReports";
+import { IconButton } from "../ui/IconButton";
 import { Textarea } from "../ui/FormField";
 import { AssigneeEditor } from "./AssigneeEditor";
 import { AttachmentList } from "./AttachmentList";
@@ -82,12 +84,26 @@ export function ReportItemCard({
         <div className={styles.headerLeft}>
           {canEdit && (
             <div className={styles.orderControls}>
-              <button type="button" className={styles.orderButton} disabled={isFirst} onClick={() => onMove("up")} aria-label="Переместить вверх">
-                <ChevronUp size={16} />
-              </button>
-              <button type="button" className={styles.orderButton} disabled={isLast} onClick={() => onMove("down")} aria-label="Переместить вниз">
-                <ChevronDown size={16} />
-              </button>
+              <IconButton
+                size="xs"
+                variant="muted"
+                label="Переместить вверх"
+                className={styles.orderButton}
+                disabled={isFirst}
+                onClick={() => onMove("up")}
+              >
+                <ArrowUp {...iconSize("xs")} />
+              </IconButton>
+              <IconButton
+                size="xs"
+                variant="muted"
+                label="Переместить вниз"
+                className={styles.orderButton}
+                disabled={isLast}
+                onClick={() => onMove("down")}
+              >
+                <ArrowDown {...iconSize("xs")} />
+              </IconButton>
             </div>
           )}
 
@@ -120,9 +136,9 @@ export function ReportItemCard({
             <span className={styles.statusReadonly}>{STATUS_OPTIONS.find((o) => o.value === item.status)?.label}</span>
           )}
           {canEdit && canRemove && (
-            <button type="button" className={styles.deleteButton} onClick={handleRemove} title="Удалить этап">
-              <Trash2 size={18} />
-            </button>
+            <IconButton variant="danger" size="sm" label="Удалить этап" onClick={handleRemove}>
+              <Trash2 {...iconSize("sm")} />
+            </IconButton>
           )}
         </div>
       </div>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, History } from "lucide-react";
+import { ChevronRight, History } from "lucide-react";
 import type { ReportRevision } from "../../lib/api/types";
 import { formatDateTime } from "../../lib/format";
+import { iconSize } from "../../lib/icons";
+import styles from "./RevisionHistory.module.css";
 
 export function RevisionHistory({ revisions }: { revisions: ReportRevision[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,37 +14,23 @@ export function RevisionHistory({ revisions }: { revisions: ReportRevision[] }) 
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          color: "var(--color-text-body)",
-          fontSize: "0.8125rem",
-        }}
-      >
-        <History size={14} />
+      <button type="button" className={styles.toggle} onClick={() => setIsOpen((open) => !open)}>
+        <History {...iconSize("sm")} className={styles.toggleIcon} />
         История изменений ({revisions.length})
-        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <ChevronRight
+          {...iconSize("xs")}
+          className={[styles.chevron, isOpen ? styles.chevronOpen : ""].join(" ").trim()}
+        />
       </button>
 
       {isOpen && (
-        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className={styles.list}>
           {revisions.map((revision) => (
-            <div
-              key={revision.id}
-              style={{
-                borderLeft: "2px solid var(--color-border)",
-                paddingLeft: 12,
-                fontSize: "0.8125rem",
-              }}
-            >
-              <div style={{ color: "var(--color-text-body)", marginBottom: 4 }}>
+            <div key={revision.id} className={styles.entry}>
+              <div className={styles.meta}>
                 {formatDateTime(revision.changedAt)} · {revision.changedBy?.fullName ?? "—"}
               </div>
-              <div style={{ whiteSpace: "pre-wrap" }}>{revision.content}</div>
+              <div className={styles.content}>{revision.content}</div>
             </div>
           ))}
         </div>

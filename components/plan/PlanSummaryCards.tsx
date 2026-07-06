@@ -2,19 +2,30 @@ import { AlertTriangle, ClipboardList } from "lucide-react";
 import styles from "./PlanSummaryCards.module.css";
 
 interface PlanSummaryCardsProps {
-  totalSubtasks: number;
+  participantCount: number;
+  ownerCount: number;
   directionCount: number;
   delayedCount: number;
 }
 
-export function PlanSummaryCards({ totalSubtasks, directionCount, delayedCount }: PlanSummaryCardsProps) {
+export function PlanSummaryCards({
+  participantCount,
+  ownerCount,
+  directionCount,
+  delayedCount,
+}: PlanSummaryCardsProps) {
+  const participationHint =
+    ownerCount > 0
+      ? `+ ${ownerCount} ${ownerCount === 1 ? "назначена" : "назначено"} ответственным из плана`
+      : `${directionCount} направлений стратегического плана`;
+
   return (
     <div className={styles.grid}>
       <div className={styles.card}>
         <div className={styles.content}>
-          <h5 className={styles.label}>Подзадач отдела</h5>
-          <div className={styles.value}>{totalSubtasks}</div>
-          <p className={styles.hint}>{directionCount} направлений стратегического плана</p>
+          <h5 className={styles.label}>Выбрано подзадач</h5>
+          <div className={styles.value}>{participantCount}</div>
+          <p className={styles.hint}>{participationHint}</p>
         </div>
         <ClipboardList className={styles.watermark} size={120} strokeWidth={1} />
       </div>
