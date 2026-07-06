@@ -13,11 +13,8 @@ interface TaskAccordionProps {
   defaultOpen?: boolean;
   enrolledSubtaskIds: Set<string>;
   myReportsBySubtaskId: Map<string, QuarterlyReport>;
-  ownDepartmentId?: string | null;
   periodId?: string;
-  canSelect: boolean;
-  participatingId: string | null;
-  onParticipate: (subtaskId: string) => void;
+  canEditReports: boolean;
   onReportEnsured: () => void;
 }
 
@@ -27,15 +24,16 @@ export function TaskAccordion({
   defaultOpen,
   enrolledSubtaskIds,
   myReportsBySubtaskId,
-  ownDepartmentId,
   periodId,
-  canSelect,
-  participatingId,
-  onParticipate,
+  canEditReports,
   onReportEnsured,
 }: TaskAccordionProps) {
   const [isOpen, setIsOpen] = useState(Boolean(defaultOpen));
-  const stats = computeTaskStats(subtasks, enrolledSubtaskIds, myReportsBySubtaskId);
+
+  const assignedSubtasks = subtasks.filter((subtask) => enrolledSubtaskIds.has(subtask.id));
+  const stats = computeTaskStats(assignedSubtasks, enrolledSubtaskIds, myReportsBySubtaskId);
+
+  if (assignedSubtasks.length === 0) return null;
 
   return (
     <div className={[styles.task, isOpen ? styles.taskOpen : ""].join(" ")}>
@@ -56,17 +54,14 @@ export function TaskAccordion({
       {isOpen && (
         <div className={styles.body}>
           <div className={styles.subtaskList}>
-            {subtasks.map((subtask) => (
+            {assignedSubtasks.map((subtask) => (
               <SubtaskRow
                 key={subtask.id}
                 subtask={subtask}
                 taskNumber={task.number}
                 myReport={myReportsBySubtaskId.get(subtask.id)}
-                isEnrolled={enrolledSubtaskIds.has(subtask.id)}
                 periodId={periodId}
-                canSelect={canSelect}
-                isParticipating={participatingId === subtask.id}
-                onParticipate={() => onParticipate(subtask.id)}
+                canEditReports={canEditReports}
                 onReportEnsured={onReportEnsured}
               />
             ))}

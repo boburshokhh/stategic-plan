@@ -6,7 +6,6 @@ import { usePageHeader } from "../../../lib/layout/PageHeaderContext";
 import { usePeriod } from "../../../lib/period/PeriodContext";
 import { useAuth } from "../../../lib/auth/AuthContext";
 import { useMyReports } from "../../../lib/hooks/useReports";
-import { useMySubtaskParticipation } from "../../../lib/hooks/useDepartmentParticipation";
 import { useDashboardOverview } from "../../../lib/hooks/useDashboard";
 import { importApi } from "../../../lib/api/endpoints";
 import { breakdownFromReports, breakdownFromOverview } from "../../../lib/dashboard/reportStats";
@@ -27,7 +26,6 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { selectedPeriod, year, quarter } = usePeriod();
   const { data: reports, isLoading, isError, refetch } = useMyReports(selectedPeriod?.id);
-  const { data: participation, isLoading: participationLoading } = useMySubtaskParticipation(year);
   const isOversight = user?.role === "admin" || user?.role === "direction_head";
   const {
     data: overview,
@@ -41,9 +39,8 @@ export default function DashboardPage() {
     enabled: user?.role === "admin",
   });
 
-  const enrolledCount = participation?.filter((item) => item.enrollment).length ?? 0;
-  const needsTaskSelection =
-    user?.role === "dept_user" && !isLoading && !participationLoading && !isError && enrolledCount === 0;
+  const chartEmptyHint =
+    "Отчёты появятся, когда вашему отделу будут назначены подзадачи в стратегическом плане.";
 
   const deptBreakdown = useMemo(() => breakdownFromReports(reports ?? []), [reports]);
   const adminBreakdown = useMemo(
@@ -51,12 +48,9 @@ export default function DashboardPage() {
     [overview],
   );
 
-  const chartEmptyHint =
-    "Выберите подзадачи в разделе «Стратегический план → Выбор подзадач», чтобы увидеть статистику по кварталу.";
-
   return (
     <div className={styles.page}>
-      <PhaseBanner needsTaskSelection={needsTaskSelection} />
+      <PhaseBanner />
 
       {user?.role === "dept_user" && (
         <>

@@ -12,7 +12,7 @@ export function PlanSummaryCards({ totalSubtasks, directionCount, delayedCount }
     <div className={styles.grid}>
       <div className={styles.card}>
         <div className={styles.content}>
-          <h5 className={styles.label}>Выбранных подзадач</h5>
+          <h5 className={styles.label}>Подзадач отдела</h5>
           <div className={styles.value}>{totalSubtasks}</div>
           <p className={styles.hint}>{directionCount} направлений стратегического плана</p>
         </div>

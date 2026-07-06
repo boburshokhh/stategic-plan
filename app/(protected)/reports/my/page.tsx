@@ -93,13 +93,13 @@ export default function MyReportsPage() {
             title="Отчётов не найдено"
             description={
               reports?.length === 0
-                ? "Сначала выберите подзадачи года, в которых участвует ваш отдел."
+                ? "Отчёты появятся, когда вашему отделу будут назначены подзадачи в стратегическом плане."
                 : "Попробуйте изменить фильтры или выбрать другой отчётный период."
             }
             action={
               reports?.length === 0 ? (
-                <Link href="/plan/participation">
-                  <Button variant="primary">Выбрать подзадачи для участия</Button>
+                <Link href="/plan">
+                  <Button variant="primary">Открыть стратегический план</Button>
                 </Link>
               ) : undefined
             }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, TreePine, LogOut, Upload, ListChecks } from "lucide-react";
+import { LayoutDashboard, ClipboardList, TreePine, LogOut, Upload } from "lucide-react";
 import { useAuth } from "../../lib/auth/AuthContext";
 import { usePeriod } from "../../lib/period/PeriodContext";
 import { useMyReports } from "../../lib/hooks/useReports";
@@ -27,10 +27,7 @@ export function Sidebar() {
   const navItems = [
     { href: "/dashboard", label: "Дашборд", icon: LayoutDashboard },
     ...(user?.role === "dept_user"
-      ? [
-          { href: "/reports/my", label: "Мои отчёты", icon: ClipboardList, count: pendingCount },
-          { href: "/plan/participation", label: "Выбор подзадач", icon: ListChecks },
-        ]
+      ? [{ href: "/reports/my", label: "Мои отчёты", icon: ClipboardList, count: pendingCount }]
       : []),
     { href: "/plan", label: "Стратегический план", icon: TreePine },
     ...(user?.role === "admin"

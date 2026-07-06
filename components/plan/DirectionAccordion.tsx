@@ -16,11 +16,8 @@ interface DirectionAccordionProps {
   defaultOpen?: boolean;
   enrolledSubtaskIds: Set<string>;
   myReportsBySubtaskId: Map<string, QuarterlyReport>;
-  ownDepartmentId?: string | null;
   periodId?: string;
-  canSelect: boolean;
-  participatingId: string | null;
-  onParticipate: (subtaskId: string) => void;
+  canEditReports: boolean;
   onReportEnsured: () => void;
 }
 
@@ -30,11 +27,8 @@ export function DirectionAccordion({
   defaultOpen,
   enrolledSubtaskIds,
   myReportsBySubtaskId,
-  ownDepartmentId,
   periodId,
-  canSelect,
-  participatingId,
-  onParticipate,
+  canEditReports,
   onReportEnsured,
 }: DirectionAccordionProps) {
   const [isOpen, setIsOpen] = useState(Boolean(defaultOpen));
@@ -81,11 +75,8 @@ export function DirectionAccordion({
                 defaultOpen={index === 0}
                 enrolledSubtaskIds={enrolledSubtaskIds}
                 myReportsBySubtaskId={myReportsBySubtaskId}
-                ownDepartmentId={ownDepartmentId}
                 periodId={periodId}
-                canSelect={canSelect}
-                participatingId={participatingId}
-                onParticipate={onParticipate}
+                canEditReports={canEditReports}
                 onReportEnsured={onReportEnsured}
               />
             ))}

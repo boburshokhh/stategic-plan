@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PenLine, Pencil, Plus } from "lucide-react";
+import { PenLine, Pencil } from "lucide-react";
 import type { QuarterlyReport, ReportStatus, Subtask } from "../../lib/api/types";
 import { formatSubtaskCode } from "../../lib/plan/planStats";
 import { reportsApi } from "../../lib/api/endpoints";
@@ -16,11 +16,8 @@ interface SubtaskRowProps {
   subtask: Subtask;
   taskNumber: number | null;
   myReport?: QuarterlyReport;
-  isEnrolled: boolean;
   periodId?: string;
-  canSelect: boolean;
-  isParticipating?: boolean;
-  onParticipate: () => void;
+  canEditReports: boolean;
   onReportEnsured?: () => void;
 }
 
@@ -28,11 +25,8 @@ export function SubtaskRow({
   subtask,
   taskNumber,
   myReport,
-  isEnrolled,
   periodId,
-  canSelect,
-  isParticipating,
-  onParticipate,
+  canEditReports,
   onReportEnsured,
 }: SubtaskRowProps) {
   const router = useRouter();
@@ -80,41 +74,28 @@ export function SubtaskRow({
       </div>
 
       <div className={styles.side}>
-        {isEnrolled && (
-          <div className={styles.status}>
-            <StatusBadge status={reportStatus} />
-            <div className={styles.progress}>
-              <CompletenessBar
-                percent={progressPercent}
-                completed={myReport?.progress.completedItems}
-                total={myReport?.progress.totalItems}
-              />
-            </div>
+        <div className={styles.status}>
+          <StatusBadge status={reportStatus} />
+          <div className={styles.progress}>
+            <CompletenessBar
+              percent={progressPercent}
+              completed={myReport?.progress.completedItems}
+              total={myReport?.progress.totalItems}
+            />
           </div>
-        )}
+        </div>
 
-        {canSelect && (
+        {canEditReports && (
           <div className={styles.actions}>
-            {isEnrolled ? (
-              <Button
-                variant={isComplete ? "outline" : "primary"}
-                size="small"
-                loading={ensuring}
-                onClick={handleOpenReport}
-              >
-                {isComplete ? (
-                  <Pencil size={14} strokeWidth={1.75} />
-                ) : (
-                  <PenLine size={14} strokeWidth={1.75} />
-                )}
-                {isComplete ? "Изменить отчёт" : "Написать отчёт"}
-              </Button>
-            ) : (
-              <Button variant="outline" size="small" loading={isParticipating} onClick={onParticipate}>
-                <Plus size={14} strokeWidth={1.75} />
-                Выбрать
-              </Button>
-            )}
+            <Button
+              variant={isComplete ? "outline" : "primary"}
+              size="small"
+              loading={ensuring}
+              onClick={handleOpenReport}
+            >
+              {isComplete ? <Pencil size={14} strokeWidth={1.75} /> : <PenLine size={14} strokeWidth={1.75} />}
+              {isComplete ? "Изменить отчёт" : "Написать отчёт"}
+            </Button>
           </div>
         )}
       </div>

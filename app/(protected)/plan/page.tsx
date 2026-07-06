@@ -7,12 +7,7 @@ import { usePeriod } from "../../../lib/period/PeriodContext";
 import { useAuth } from "../../../lib/auth/AuthContext";
 import { useActivePlan } from "../../../lib/hooks/usePlan";
 import { useMyReports } from "../../../lib/hooks/useReports";
-import { useParticipateInSubtasks } from "../../../lib/hooks/useDepartmentParticipation";
-import {
-  buildMyReportsMap,
-  computePlanSummary,
-  getEnrolledSubtaskIds,
-} from "../../../lib/plan/planStats";
+import { buildMyReportsMap, computePlanSummary, getEnrolledSubtaskIds } from "../../../lib/plan/planStats";
 import { ErrorAlert } from "../../../components/ui/ErrorAlert";
 import { LoadingSkeleton } from "../../../components/ui/LoadingSkeleton";
 import { PlanPageHeader } from "../../../components/plan/PlanPageHeader";
@@ -28,15 +23,12 @@ export default function PlanPage() {
   usePageHeader("Стратегический план", [{ label: "Стратегический план" }]);
   const { user } = useAuth();
   const { selectedPeriod, year: periodYear } = usePeriod();
-  const canSelect = user?.role === "dept_user" && Boolean(user.departmentId);
+  const canEditReports = user?.role === "dept_user" && Boolean(user.departmentId);
   const { data: plan, isLoading, isError, refetch } = useActivePlan();
-  const { data: myReports } = useMyReports(selectedPeriod?.id, canSelect);
-  const participate = useParticipateInSubtasks();
+  const { data: myReports } = useMyReports(selectedPeriod?.id, canEditReports);
   const queryClient = useQueryClient();
 
   const [planYear, setPlanYear] = useState(periodYear);
-  const [participatingId, setParticipatingId] = useState<string | null>(null);
-  const [participateError, setParticipateError] = useState<string | null>(null);
 
   const enrolledSubtaskIds = useMemo(() => {
     if (!plan) return new Set<string>();
@@ -54,22 +46,8 @@ export default function PlanPage() {
     queryClient.invalidateQueries({ queryKey: ["reports", "my"] });
   };
 
-  const handleParticipate = async (subtaskId: string) => {
-    setParticipateError(null);
-    setParticipatingId(subtaskId);
-    try {
-      await participate.mutateAsync([subtaskId]);
-    } catch {
-      setParticipateError("Не удалось выбрать подзадачу. Попробуйте ещё раз.");
-    } finally {
-      setParticipatingId(null);
-    }
-  };
-
   return (
     <div className={styles.page}>
-      {participateError && <ErrorAlert message={participateError} onRetry={() => setParticipateError(null)} />}
-
       {isLoading && <LoadingSkeleton lines={6} height={48} />}
       {isError && <ErrorAlert message="Не удалось загрузить стратегический план" onRetry={() => refetch()} />}
 
@@ -93,11 +71,8 @@ export default function PlanPage() {
                 defaultOpen={index === 0}
                 enrolledSubtaskIds={enrolledSubtaskIds}
                 myReportsBySubtaskId={myReportsBySubtaskId}
-                ownDepartmentId={user?.departmentId}
                 periodId={selectedPeriod?.id}
-                canSelect={canSelect}
-                participatingId={participatingId}
-                onParticipate={handleParticipate}
+                canEditReports={canEditReports}
                 onReportEnsured={handleReportEnsured}
               />
             ))}
